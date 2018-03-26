@@ -1,4 +1,4 @@
-#ifdef PLAYER_H
+#ifndef PLAYER_H
 #define PLAYER_H
 
 #include "../Util/consts.h"
@@ -6,15 +6,17 @@
 typedef enum EPlayerGamblingType
 {
 	CONSTANT,
-	PLUS,
+	MORE,
 	LESS
 } EPlayerGamblingType;
 
-typedef struct Player
+typedef struct player
 {
 	uint money;
-	EPlayerGamblingType
-
+	uint placing;
+	EPlayerGamblingType strategy;
+	uint stopVal;
+	uint objMoney;
 } Player;
 
 

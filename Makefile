@@ -1,2 +1,2 @@
 compile:
-	gcc main.c Util/deck.c -o BlackJack.paf
+	gcc -Wall Util/deck.c Actor/player.c main.c -o BlackJack.paf
