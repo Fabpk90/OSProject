@@ -19,5 +19,6 @@ typedef struct player
 	uint objMoney;
 } Player;
 
+void * playerManager(void *playerStruct);
 
 #endif // PLAYER_H
