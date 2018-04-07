@@ -5,9 +5,7 @@
 
 void * playerManager(void *playerStruct)
 {
-  Player *player = (Player*) playerStruct;
-
-  player->money = 50;
+  player_t *player = (player_t*) playerStruct;
 
   printf("money %u\n", player->money);
 

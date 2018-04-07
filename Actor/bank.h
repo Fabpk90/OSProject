@@ -2,6 +2,8 @@
 #define BANK_H
 
 #include "../Util/consts.h"
+#include <pthread.h>
+#include "player.h"
 
 typedef struct Bank
 {
@@ -9,5 +11,7 @@ typedef struct Bank
   uint nbDecks;
   uint nbRounds;
 } Bank;
+
+void bankManager(pthread_t * threads, player_t * players, pthread_barrier_t* barrier);
 
 #endif
