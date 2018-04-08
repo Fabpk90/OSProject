@@ -5,6 +5,7 @@
 
 #include "Actor/bank.h"
 #include "Actor/player.h"
+#include "Util/cardHandler.h"
 
 int main(int argc, char **argv)
 {
@@ -28,6 +29,7 @@ int main(int argc, char **argv)
     players[i].id = i+1;
     players[i].barrierRound = barrier;
     players[i].strategy = CONSTANT;
+    initCardHandler(&players[i].hand);
   //  players[i].money = 10;
 
     pthread_create(&threads[i], NULL, playerManager, &players[i]);

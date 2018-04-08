@@ -2,4 +2,4 @@ run: compile
 	./BlackJack.paf
 
 compile:
-	gcc -Wall Actor/bank.c Util/deck.c Actor/player.c main.c -pthread -o BlackJack.paf
+	gcc -Wall Util/cardHandler.c Actor/bank.c Util/deck.c Actor/player.c main.c -pthread -o BlackJack.paf
