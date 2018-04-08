@@ -11,8 +11,10 @@ typedef enum EPlayerGamblingType
 	LESS
 } EPlayerGamblingType_t;
 
+
 typedef struct player
 {
+	uint id;
 	uint money;
 	uint placing;
 	EPlayerGamblingType_t strategy;

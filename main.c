@@ -25,7 +25,9 @@ int main(int argc, char **argv)
 
   for(i = 0; i < numPlayer; i++)
   {
+    players[i].id = i+1;
     players[i].barrierRound = barrier;
+    players[i].strategy = CONSTANT;
   //  players[i].money = 10;
 
     pthread_create(&threads[i], NULL, playerManager, &players[i]);
