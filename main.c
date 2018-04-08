@@ -29,11 +29,14 @@ int main(int argc, char **argv)
     players[i].id = i+1;
     players[i].barrierRound = barrier;
     players[i].strategy = CONSTANT;
-    initCardHandler(&players[i].hand);
   //  players[i].money = 10;
 
     pthread_create(&threads[i], NULL, playerManager, &players[i]);
   }
+
+  bank->nbPlayer = numPlayer;
+  bank->nbDecks = 3;
+  bank->nbRounds = 20;
 
   bankManager(bank, threads, players, barrier);
 
@@ -45,6 +48,7 @@ int main(int argc, char **argv)
   free(players);
   free(threads);
   pthread_barrier_destroy(barrier);
+  free(barrier);
   free(bank);
 
   return 0;

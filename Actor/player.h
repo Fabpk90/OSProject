@@ -1,8 +1,10 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#include "../Util/consts.h"
 #include <pthread.h>
+
+#include "../Util/consts.h"
+#include "../Util/cardHandler.h"
 
 typedef enum EPlayerGamblingType
 {
@@ -23,8 +25,11 @@ typedef struct player
 	pthread_barrier_t * barrierRound; //used for waitin that everyone has played
 	//à utiliser pour ditribuer les cartes -> tous les joueurs attendent la banque(distribution de cartes)
 	//et après la barrière resert pour attendre que tout le monde ait choisi une action
+	cardHandler_t hand;
 } player_t;
 
 void * playerManager(void *playerStruct);
+
+int getValueFromHand(cardHandler_t * cards);
 
 #endif // PLAYER_H

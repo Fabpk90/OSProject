@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 #include "../Util/deck.h"
 
 #include "bank.h"
@@ -5,19 +7,21 @@
 void bankManager(bank_t * bank, pthread_t * threads, player_t * players, pthread_barrier_t * barrier)
 {
   uint i = 0;
-  deck_t * deck = NULL;
+  deck_t * decks = NULL;
   initDeckLib();
-  deck = initDeck(P52, bank->nbDecks);
 
-  //shuffling decks
+  //init and shuffling decks
   for(i = 0; i < bank->nbDecks; i++)
   {
-    shuffleDeck(&deck[i]);
+    decks = initDeck(P52, bank->nbDecks);
+    shuffleDeck(decks);
   }
 
   //gives cards to all players
   for(i = 0; i < bank->nbPlayer; i++)
   {
-    
+
   }
+
+  removeDeck(decks);
 }
