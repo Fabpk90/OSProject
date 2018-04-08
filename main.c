@@ -18,17 +18,20 @@ int main(int argc, char **argv)
   pthread_t *threads = (pthread_t*)malloc(sizeof(pthread_t) * numPlayer);
   player_t *players = (player_t*)malloc(sizeof(player_t) * numPlayer);
   pthread_barrier_t * barrier  = (pthread_barrier_t*) malloc(sizeof(pthread_barrier_t));
+  bank_t * bank = (bank_t*) malloc(sizeof(bank_t));
   int i = 0;
+
+  pthread_barrier_init(barrier, NULL, numPlayer);
 
   for(i = 0; i < numPlayer; i++)
   {
-    players[i].barrier = barrier;
+    players[i].barrierRound = barrier;
   //  players[i].money = 10;
 
     pthread_create(&threads[i], NULL, playerManager, &players[i]);
   }
 
-  bankManager(threads, players, barrier);
+  bankManager(bank, threads, players, barrier);
 
   for(i = 0; i < numPlayer; i++)
   {
@@ -37,6 +40,8 @@ int main(int argc, char **argv)
 
   free(players);
   free(threads);
+  pthread_barrier_destroy(barrier);
+  free(bank);
 
   return 0;
 }

@@ -15,7 +15,7 @@ typedef struct player
 {
 	uint money;
 	uint placing;
-	EPlayerGamblingType strategy;
+	EPlayerGamblingType_t strategy;
 	uint stopVal;
 	uint objMoney;
 	pthread_barrier_t * barrierRound; //used for waitin that everyone has played
