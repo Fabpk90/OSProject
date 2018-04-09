@@ -25,7 +25,8 @@ typedef struct player
 	pthread_barrier_t * barrierRound; //used for waitin that everyone has played
 	//à utiliser pour ditribuer les cartes -> tous les joueurs attendent la banque(distribution de cartes)
 	//et après la barrière resert pour attendre que tout le monde ait choisi une action
-	cardHandler_t hand;
+	cardHandler_t * hand;
+	pthread_cond_t * mutex;
 } player_t;
 
 void * playerManager(void *playerStruct);

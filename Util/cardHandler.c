@@ -1,21 +1,24 @@
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "cardHandler.h"
 
 
-void initCardHandler(cardHandler_t * cardHandler)
+cardHandler_t *  initCardHandler()
 {
-  cardHandler = (cardHandler_t*) malloc(sizeof(cardHandler_t));
+ cardHandler_t *  cardHandler =  malloc(sizeof(cardHandler_t));
 
   cardHandler->card = -1;
   cardHandler->next = NULL;
+
+  return cardHandler;
 }
 
 void addCard(cardHandler_t * cardHandler, cardvalue_t card)
 {
   cardHandler_t * index = cardHandler;
 
-  cardHandler_t * addingCard = (cardHandler_t*) malloc(sizeof(cardHandler_t));
+  cardHandler_t * addingCard = malloc(sizeof(cardHandler_t));
   addingCard->next = NULL;
   addingCard->card = card;
 
@@ -28,15 +31,19 @@ void addCard(cardHandler_t * cardHandler, cardvalue_t card)
 }
 void freeCardHandler(cardHandler_t * cardHandler)
 {
-  cardHandler_t * index = cardHandler;
-  cardHandler_t * next = cardHandler->next;
-
-  while(next != NULL)
+  if(cardHandler != NULL)
   {
+    cardHandler_t * index = cardHandler;
+    cardHandler_t * next = cardHandler->next;
+
+    while(next != NULL)
+    {
+      free(index);
+      index = next;
+      next = next->next;
+    }
+
     free(index);
-    index = next;
-    next = next->next;
   }
 
-  free(index);
 }

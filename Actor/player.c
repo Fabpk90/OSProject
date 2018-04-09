@@ -4,7 +4,7 @@
 #include "player.h"
 #include "../Util/cardHandler.h"
 
-void * playerManager(void *playerStruct)
+void * playerManager(void * playerStruct)
 {
   player_t *player = (player_t*) playerStruct;
   char stopPlaying = 0;
@@ -14,6 +14,12 @@ void * playerManager(void *playerStruct)
     stopPlaying = 1;
     //waits for his cards
     pthread_barrier_wait(player->barrierRound);
+
+    player->hand = initCardHandler();
+
+    addCard(player->hand, 5);
+    addCard(player->hand, 6);
+    freeCardHandler(player->hand);
   }
 
   return NULL;

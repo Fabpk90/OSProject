@@ -9,7 +9,7 @@ typedef struct cardHandler
   struct cardHandler * next;
 } cardHandler_t;
 
-void initCardHandler(cardHandler_t * cardHandler);
+cardHandler_t *  initCardHandler();
 void addCard(cardHandler_t * cardHandler, cardvalue_t card);
 void freeCardHandler(cardHandler_t * cardHandler);
 
