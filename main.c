@@ -22,13 +22,13 @@ int main(int argc, char **argv)
   bank_t * bank = malloc(sizeof(bank_t));
   int i = 0;
 
-  pthread_barrier_init(barrier, NULL, numPlayer);
+  pthread_barrier_init(barrier, NULL, numPlayer + 1);
 
   for(i = 0; i < numPlayer; i++)
   {
     players[i].id = i+1;
     players[i].barrierRound = barrier;
-    players[i].strategy = CONSTANT;
+    players[i].strategy = FLAG_GAMBLING_CONST;
 
     pthread_create(&threads[i], NULL, playerManager, &players[i]);
   }
