@@ -6,6 +6,10 @@
 
 void * playerManager(void * playerStruct)
 {
+
+//problem: the bank can't search actively for players who want cards
+//maybe passive wait, cond ?
+
   player_t *player = (player_t*) playerStruct;
   bool stopPlaying = 0;
   int handValue = 0;
@@ -36,6 +40,7 @@ void * playerManager(void * playerStruct)
     }
 
     printf("Value : %d\n", handValue);
+
     //waits for the bank to draw its cards
     //pthread_barrier_wait(player->barrierRound);
 
@@ -78,7 +83,10 @@ int getValueFromHand(cardHandler_t * cards)
 
   while(index != NULL)
   {
-    val += index->card;
+    if(index->card[0] != -1)
+      val += index->card[0];
+    else if(index->card[1] != -1)
+      val += index->card[1];
 
     index = index->next;
   }

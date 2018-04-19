@@ -5,7 +5,7 @@
 
 typedef struct cardHandler
 {
-  cardvalue_t card;
+  cardvalue_t card[2];
   struct cardHandler * next;
 } cardHandler_t;
 
