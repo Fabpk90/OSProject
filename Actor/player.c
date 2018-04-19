@@ -6,10 +6,6 @@
 
 void * playerManager(void * playerStruct)
 {
-
-//problem: the bank can't search actively for players who want cards
-//maybe passive wait, cond ?
-
   player_t *player = (player_t*) playerStruct;
   bool stopPlaying = 0;
   int handValue = 0;
@@ -27,10 +23,10 @@ void * playerManager(void * playerStruct)
 
     handValue = getValueFromHand(player->hand);
 
-    printf("Value : %d\n", handValue);
+    printf("Value : %d, %f\n", handValue, bet);
 
     // loop unitl threshold reached
-    while(handValue < player->stopVal)
+    while(handValue <= player->stopVal)
     {
         //ask card
         player->wantCard = 1;
@@ -41,9 +37,8 @@ void * playerManager(void * playerStruct)
 
     printf("Value : %d\n", handValue);
 
-    //waits for the bank to draw its cards
-    //pthread_barrier_wait(player->barrierRound);
-
+    player->wantCard = 0;
+    pthread_barrier_wait(player->barrierRound);
 
     //at the end, when it gets his money or not, test if he quits
     if(player->money >= player->objMoney)
@@ -56,7 +51,7 @@ void * playerManager(void * playerStruct)
   return NULL;
 }
 
-float getBet(char resultLastRound, float placing, gambling_t strategy)
+int getBet(char resultLastRound, int placing, gambling_t strategy)
 {
   if(resultLastRound & FLAG_RESULT_NONE || strategy & FLAG_GAMBLING_CONST)
     return placing;
@@ -64,14 +59,14 @@ float getBet(char resultLastRound, float placing, gambling_t strategy)
   if(strategy & FLAG_GAMBLING_MORE)
   {
     if(resultLastRound & FLAG_RESULT_LOSS)
-      return placing * 2.f;
+      return placing << 1;
 
     return placing;
   }
   else // less
   {
     if(resultLastRound & FLAG_RESULT_LOSS)
-      return placing / 2.f;
+      return placing >> 1;
     return placing;
   }
 }

@@ -16,8 +16,8 @@ int main(int argc, char **argv)
     simulation
   */
   int numPlayer = 4;
-  pthread_t *threads = malloc(sizeof(pthread_t) * numPlayer);
-  player_t *players = malloc(sizeof(player_t) * numPlayer);
+  pthread_t * threads = malloc(sizeof(pthread_t) * numPlayer);
+  player_t * players = malloc(sizeof(player_t) * numPlayer);
   pthread_barrier_t * barrier  = malloc(sizeof(pthread_barrier_t));
   bank_t * bank = malloc(sizeof(bank_t));
   int i = 0;

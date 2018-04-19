@@ -14,13 +14,12 @@
 #define FLAG_RESULT_LOSS 	2
 #define FLAG_RESULT_NONE 	4
 
-
 typedef bool gambling_t;
 
 typedef struct player
 {
 	uint id;
-	float money;
+	int money;
 	uint placing;
 	gambling_t strategy;
 	uint stopVal;
@@ -36,6 +35,6 @@ void * playerManager(void *playerStruct);
 
 int getValueFromHand(cardHandler_t * cards);
 
-float getBet(char resultLastRound, float placing, gambling_t strategy);
+int getBet(char resultLastRound, int placing, gambling_t strategy);
 
 #endif // PLAYER_H
