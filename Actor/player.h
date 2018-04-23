@@ -19,7 +19,7 @@ typedef bool gambling_t;
 typedef struct player
 {
 	uint id;
-	int money;
+	uint money;
 	uint placing;
 	gambling_t strategy;
 	uint stopVal;

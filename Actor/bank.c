@@ -5,7 +5,7 @@
 
 #include "bank.h"
 
-void bankManager(bank_t * bank, pthread_t * threads, player_t * players, pthread_barrier_t * barrier)
+void bankManager(bank_t * bank, pthread_t * threads, player_t * players)
 {
   uint i = 0;
   deck_t * decks = NULL;
@@ -22,7 +22,7 @@ void bankManager(bank_t * bank, pthread_t * threads, player_t * players, pthread
     addCard(players[i].hand, 5);
   }
 
-  pthread_barrier_wait(barrier);
+  pthread_barrier_wait(bank->barrierRound);
 
   while(bank->nbRounds!=0)
   {

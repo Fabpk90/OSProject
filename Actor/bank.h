@@ -10,8 +10,10 @@ typedef struct Bank
   uint nbPlayer;
   uint nbDecks;
   uint nbRounds;
+  pthread_barrier_t * barrierRound;
+  pthread_barrier_t * barrierCard;
 } bank_t;
 
-void bankManager(bank_t * bank, pthread_t * threads, player_t * players, pthread_barrier_t* barrier);
+void bankManager(bank_t * bank, pthread_t * threads, player_t * players);
 
 #endif

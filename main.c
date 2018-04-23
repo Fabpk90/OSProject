@@ -18,25 +18,20 @@ int main(int argc, char **argv)
   */
   pthread_t * threads = NULL;
   player_t * players = NULL;
-  pthread_barrier_t * barrier = NULL;
   bank_t * bank = NULL;
   int i = 0;
 
   initGame("config.dat", &bank, &players);
 
   threads = malloc(sizeof(pthread_t) * bank->nbPlayer);
-  barrier = malloc(sizeof(pthread_barrier_t));
-
-  pthread_barrier_init(barrier, NULL, bank->nbPlayer + 1);
 
   for(i = 0; i < bank->nbPlayer; i++)
   {
-    players[i].barrierRound = barrier;
     pthread_create(&threads[i], NULL, playerManager, &players[i]);
   }
 
 
-  bankManager(bank, threads, players, barrier);
+  bankManager(bank, threads, players);
 
   for(i = 0; i < bank->nbPlayer; i++)
   {
@@ -45,8 +40,8 @@ int main(int argc, char **argv)
 
   free(players);
   free(threads);
-  pthread_barrier_destroy(barrier);
-  free(barrier);
+  pthread_barrier_destroy(bank->barrierRound);
+  pthread_barrier_destroy(bank->barrierCard);
   free(bank);
 
   return 0;

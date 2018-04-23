@@ -14,4 +14,6 @@ int initGame(const char * path, bank_t ** bank, player_t ** players);
 
 int readInt(int fd);
 
+int writePlayerLog(player_t * player);
+
 #endif

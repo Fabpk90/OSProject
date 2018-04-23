@@ -16,8 +16,15 @@ void * playerManager(void * playerStruct)
   {
     stopPlaying = 1;
 
-    printf("money: %d, placing: %d, strat: %d, stop: %d, obj: %d\n", player->money, player->placing
-    , player->strategy, player->stopVal, player->objMoney);
+  //  printf("money: %d, placing: %d, strat: %d, stop: %d, obj: %d\n", player->money, player->placing
+  //  , player->strategy, player->stopVal, player->objMoney);
+
+    bet = getBet(resultLastRound, player->placing, player->strategy);
+
+    if(bet)
+    {
+
+    }
 
     //waits for his cards
     pthread_barrier_wait(player->barrierRound);
@@ -34,13 +41,13 @@ void * playerManager(void * playerStruct)
         //ask card
         player->wantCard = 1;
         pthread_barrier_wait(player->barrierCard);
-        handValue = getValueFromHand(player->hand); // to optimize, stack is better i think
+        handValue = getValueFromHand(player->hand); // to optimize, add up directly the val of the card given
         //player->wantCard = 0;  <- this is done by the bank, for synchronisation purpose
     }
 
   //  printf("Value : %d\n", handValue);
 
-    player->wantCard = 0;
+    player->wantCard = 0; //not really needed, but still
     pthread_barrier_wait(player->barrierRound);
 
     //at the end, when it gets his money or not, test if he quits

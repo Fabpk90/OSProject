@@ -25,6 +25,12 @@ int initGame(const char * path, bank_t ** bank, player_t ** players)
       (*bank)->nbPlayer = valRead;
       (*players) = malloc(sizeof(player_t) * valRead);
 
+      (*bank)->barrierRound = malloc(sizeof(pthread_t));
+      (*bank)->barrierCard = malloc(sizeof(pthread_t));
+
+      pthread_barrier_init((*bank)->barrierRound, NULL, (*bank)->nbPlayer + 1);
+      pthread_barrier_init((*bank)->barrierCard, NULL, (*bank)->nbPlayer + 1);
+
       if((valRead = readInt(fd)))
       {
         (*bank)->nbDecks = valRead;
@@ -48,7 +54,6 @@ int initGame(const char * path, bank_t ** bank, player_t ** players)
                   //if the gambling strat is specified
                   if((char)valRead != ';')
                   {
-                    printf("strat %d\n", i);
                     switch (valRead)
                     {
                       case '+':
@@ -78,6 +83,9 @@ int initGame(const char * path, bank_t ** bank, player_t ** players)
                     }
                   }
 
+                  (*players)[i].barrierRound = (*bank)->barrierRound;
+                  (*players)[i].barrierCard = (*bank)->barrierCard;
+
                 }
               }
           }
@@ -88,6 +96,12 @@ int initGame(const char * path, bank_t ** bank, player_t ** players)
   }
   return ERROR_FILE_OPEN;
 }
+
+int writePlayerLog(player_t * player)
+{
+  return 0;
+}
+
 
 //reads an int until it finds something else
 int readInt(int fd)
