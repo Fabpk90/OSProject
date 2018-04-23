@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "../Util/deck.h"
 
@@ -22,6 +23,25 @@ void bankManager(bank_t * bank, pthread_t * threads, player_t * players, pthread
   }
 
   pthread_barrier_wait(barrier);
+
+  while(bank->nbRounds!=0)
+  {
+    for(i = 0; i < bank->nbPlayer; i++)
+    {
+      if(players[i].wantCard==1)
+      {
+        addCard(players[i].hand,5);
+      }
+      if(getValueFromHand(players[i].hand)==21)
+      {
+        printf("Win");
+        bank->nbRounds=0;
+      }
+    }
+
+    bank->nbRounds --;
+  }
+
 
   removeDeck(decks);
 }
