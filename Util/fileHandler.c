@@ -18,10 +18,8 @@ int initGame(const char * path, bank_t ** bank, player_t ** players)
   if(fd != -1)
   {
     (*bank) = malloc(sizeof(bank_t));
-
     if((valRead = readInt(fd)))
     {
-
       //on limite le nombre de joueurs ?
       //TODO: insert here the test for max players
       (*bank)->nbPlayer = valRead;
@@ -30,31 +28,22 @@ int initGame(const char * path, bank_t ** bank, player_t ** players)
       if((valRead = readInt(fd)))
       {
         (*bank)->nbDecks = valRead;
-
         if((valRead = readInt(fd)))
         {
-
           (*bank)->nbRounds = valRead;
-
           //START PARSING PLAYERS
           for(i = 0; i < (*bank)->nbPlayer; i++)
           {
-            printf("ii : %d\n", i);
               if((valRead = readInt(fd)))
               {
-                printf("ii : %d\n", i);
                 (*players)[i].money = valRead;
 
                 if((valRead = readInt(fd)))
                 {
-                  printf("ii : %d\n", i);
                   (*players)[i].placing = valRead;
 
                   lseek(fd, -1, SEEK_CUR);
                   read(fd, &valRead, sizeof(char));
-
-
-                  printf("%c\n", (char)valRead);
 
                   //if the gambling strat is specified
                   if((char)valRead != ';')
@@ -75,8 +64,8 @@ int initGame(const char * path, bank_t ** bank, player_t ** players)
                         break;
                     }
 
+                    //read the ';'
                     read(fd, &valRead, sizeof(char));
-                    printf("yo %c \n", valRead);
                   }
 
                   if((valRead = readInt(fd)))
@@ -90,10 +79,7 @@ int initGame(const char * path, bank_t ** bank, player_t ** players)
                   }
 
                 }
-
               }
-              else
-                printf("pal,sdgfksdfknsdgf");
           }
         }
       }
@@ -103,6 +89,7 @@ int initGame(const char * path, bank_t ** bank, player_t ** players)
   return ERROR_FILE_OPEN;
 }
 
+//reads an int until it finds something else
 int readInt(int fd)
 {
   char toRead[16];
@@ -115,16 +102,13 @@ int readInt(int fd)
   {
     if(read(fd, &buf, sizeof(char)))
     {
-      //printf("buf char: %c\n", buf);
+      //ascii transform
       buf = ((int)buf) - 48;
-    //  printf("buf int: %d\n", buf);
-
 
       if(buf >= 0 && buf <= 9)
       {
         i++;
         toRead[i] = buf;
-
       }
       else
         isRead = 1;
@@ -135,15 +119,11 @@ int readInt(int fd)
 
   if(i != -1)
   {
+    //from an array to the actual number
     for(; i >= 0; i--, charParsed *= 10 )
     {
-
       parsed += toRead[i] * (charParsed);
-      //printf("%d, parsed: %d\n",toRead[i], parsed);
     }
   }
-
-  printf("parsed: %d\n", parsed);
-
   return parsed;
 }
