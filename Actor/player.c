@@ -16,6 +16,9 @@ void * playerManager(void * playerStruct)
   {
     stopPlaying = 1;
 
+    printf("money: %d, placing: %d, strat: %d, stop: %d, obj: %d\n", player->money, player->placing
+    , player->strategy, player->stopVal, player->objMoney);
+
     //waits for his cards
     pthread_barrier_wait(player->barrierRound);
 
@@ -23,7 +26,7 @@ void * playerManager(void * playerStruct)
 
     handValue = getValueFromHand(player->hand);
 
-    printf("Value : %d, %f\n", handValue, bet);
+  //  printf("Value : %d, %f\n", handValue, bet);
 
     // loop unitl threshold reached
     while(handValue <= player->stopVal)
@@ -35,7 +38,7 @@ void * playerManager(void * playerStruct)
         //player->wantCard = 0;  <- this is done by the bank, for synchronisation purpose
     }
 
-    printf("Value : %d\n", handValue);
+  //  printf("Value : %d\n", handValue);
 
     player->wantCard = 0;
     pthread_barrier_wait(player->barrierRound);

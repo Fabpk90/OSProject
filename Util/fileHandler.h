@@ -10,6 +10,8 @@
 #define ERROR_FILE_READ 2
 
 
-int initGame(const char * path, bank_t * bank, player_t * players);
+int initGame(const char * path, bank_t ** bank, player_t ** players);
+
+int readInt(int fd);
 
 #endif
