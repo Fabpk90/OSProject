@@ -1,11 +1,15 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+#include <stdio.h>
 
 #include "fileHandler.h"
 
 
-int initGame(const char * path, bank_t * bank, player_t * players)
+int initGame(const char * path, bank_t ** bank, player_t ** players)
 {
   int fd = 0, i = 0, valRead = 0;
 
@@ -13,72 +17,133 @@ int initGame(const char * path, bank_t * bank, player_t * players)
 
   if(fd != -1)
   {
-    if(read(fd, &valRead, sizeof(char)) == sizeof(char))
+    (*bank) = malloc(sizeof(bank_t));
+
+    if((valRead = readInt(fd)))
     {
 
       //on limite le nombre de joueurs ?
       //TODO: insert here the test for max players
-      bank->nbPlayer = valRead;
-      players = malloc(sizeof(player_t) * bank->nbPlayer);
+      (*bank)->nbPlayer = valRead;
+      (*players) = malloc(sizeof(player_t) * valRead);
 
-      //black magic, reads the ;
-      read(fd, NULL, sizeof(char));
-
-      if(read(fd, &valRead, sizeof(int)))
+      if((valRead = readInt(fd)))
       {
-        bank->nbDecks = valRead;
+        (*bank)->nbDecks = valRead;
 
-        read(fd, NULL, sizeof(char));
-        if(read(fd, &valRead, sizeof(int)))
+        if((valRead = readInt(fd)))
         {
-          bank->nbRounds = valRead;
 
-          //read the /n this time
-          read(fd, NULL, sizeof(char));
+          (*bank)->nbRounds = valRead;
 
           //START PARSING PLAYERS
-          for(i = 0; i < bank->nbPlayer; i++)
+          for(i = 0; i < (*bank)->nbPlayer; i++)
           {
-              if(read(fd, &valRead, sizeof(int)))
+            printf("ii : %d\n", i);
+              if((valRead = readInt(fd)))
               {
-                players[i].money = valRead;
-                read(fd, NULL, sizeof(char));
+                printf("ii : %d\n", i);
+                (*players)[i].money = valRead;
 
-                if(read(fd, &valRead, sizeof(int)))
+                if((valRead = readInt(fd)))
                 {
-                  players[i].placing = valRead;
+                  printf("ii : %d\n", i);
+                  (*players)[i].placing = valRead;
 
+                  lseek(fd, -1, SEEK_CUR);
                   read(fd, &valRead, sizeof(char));
 
-                  //if no gambling strat are specified, go on with the parse
-                  if((char)valRead == ';')
+
+                  printf("%c\n", (char)valRead);
+
+                  //if the gambling strat is specified
+                  if((char)valRead != ';')
                   {
-                    if(read(fd, &valRead, sizeof(int)))
+                    printf("strat %d\n", i);
+                    switch (valRead)
                     {
-                      players[i].stopVal = valRead;
+                      case '+':
+                        (*players)[i].strategy = FLAG_GAMBLING_MORE;
+                      break;
 
-                      read(fd, NULL, sizeof(char));
+                      case '-':
+                        (*players)[i].strategy = FLAG_GAMBLING_LESS;
+                        break;
 
-                      if(read(fd, &valRead, sizeof(int)))
-                      {
-                        players[i].objMoney = valRead;
-                      }
+                      default:
+                        (*players)[i].strategy = FLAG_GAMBLING_CONST;
+                        break;
+                    }
+
+                    read(fd, &valRead, sizeof(char));
+                    printf("yo %c \n", valRead);
+                  }
+
+                  if((valRead = readInt(fd)))
+                  {
+                    (*players)[i].stopVal = valRead;
+
+                    if((valRead = readInt(fd)))
+                    {
+                      (*players)[i].objMoney = valRead;
                     }
                   }
-                  else // the gambling strat is specified
-                  {
 
-                  }
                 }
 
               }
-
+              else
+                printf("pal,sdgfksdfknsdgf");
           }
-
         }
       }
     }
     return ERROR_FILE_READ;
   }
   return ERROR_FILE_OPEN;
+}
+
+int readInt(int fd)
+{
+  char toRead[16];
+  int i = -1, charParsed = 1;
+  bool isRead = 0;
+  char buf;
+  int parsed = 0;
+
+  while(!isRead)
+  {
+    if(read(fd, &buf, sizeof(char)))
+    {
+      //printf("buf char: %c\n", buf);
+      buf = ((int)buf) - 48;
+    //  printf("buf int: %d\n", buf);
+
+
+      if(buf >= 0 && buf <= 9)
+      {
+        i++;
+        toRead[i] = buf;
+
+      }
+      else
+        isRead = 1;
+    }
+    else
+      isRead = 1;
+  }
+
+  if(i != -1)
+  {
+    for(; i >= 0; i--, charParsed *= 10 )
+    {
+
+      parsed += toRead[i] * (charParsed);
+      //printf("%d, parsed: %d\n",toRead[i], parsed);
+    }
+  }
+
+  printf("parsed: %d\n", parsed);
+
+  return parsed;
 }

@@ -6,6 +6,7 @@
 #include "Actor/bank.h"
 #include "Actor/player.h"
 #include "Util/cardHandler.h"
+#include "Util/fileHandler.h"
 
 int main(int argc, char **argv)
 {
@@ -15,31 +16,29 @@ int main(int argc, char **argv)
     go into the bank
     simulation
   */
-  int numPlayer = 4;
-  pthread_t * threads = malloc(sizeof(pthread_t) * numPlayer);
-  player_t * players = malloc(sizeof(player_t) * numPlayer);
-  pthread_barrier_t * barrier  = malloc(sizeof(pthread_barrier_t));
-  bank_t * bank = malloc(sizeof(bank_t));
+  pthread_t * threads = NULL;
+  player_t * players = NULL;
+  pthread_barrier_t * barrier = NULL;
+  bank_t * bank = NULL;
   int i = 0;
 
-  pthread_barrier_init(barrier, NULL, numPlayer + 1);
+  initGame("config.dat", &bank, &players);
 
-  for(i = 0; i < numPlayer; i++)
+  threads = malloc(sizeof(pthread_t) * bank->nbPlayer);
+  barrier = malloc(sizeof(pthread_barrier_t));
+
+  pthread_barrier_init(barrier, NULL, bank->nbPlayer + 1);
+
+  for(i = 0; i < bank->nbPlayer; i++)
   {
-    players[i].id = i+1;
     players[i].barrierRound = barrier;
-    players[i].strategy = FLAG_GAMBLING_CONST;
-
     pthread_create(&threads[i], NULL, playerManager, &players[i]);
   }
 
-  bank->nbPlayer = numPlayer;
-  bank->nbDecks = 3;
-  bank->nbRounds = 20;
 
   bankManager(bank, threads, players, barrier);
 
-  for(i = 0; i < numPlayer; i++)
+  for(i = 0; i < bank->nbPlayer; i++)
   {
       pthread_join(threads[i], NULL);
   }
