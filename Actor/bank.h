@@ -12,6 +12,7 @@ typedef struct Bank
   uint nbRounds;
   pthread_barrier_t * barrierRound;
   pthread_barrier_t * barrierCard;
+  cardHandler_t * hand;
 } bank_t;
 
 void bankManager(bank_t * bank, pthread_t * threads, player_t * players);

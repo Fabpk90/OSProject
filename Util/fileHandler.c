@@ -42,6 +42,7 @@ int initGame(const char * path, bank_t ** bank, player_t ** players)
           for(i = 0; i < (*bank)->nbPlayer; i++)
           {
               (*players)[i].id = i;
+              (*players)[i].bankHand = &(*bank)->hand;
               if((valRead = readInt(fd)))
               {
                 (*players)[i].money = valRead;
@@ -126,10 +127,10 @@ int writePlayerLog(player_t * player)
     printInt(fd, player->cardsVal);
     write(fd, &separator, sizeof(char));
 
-    writeCardsName(fd, player->bankHand);
+    writeCardsName(fd, (*(*player).bankHand));
     write(fd, &separator, sizeof(char));
 
-    printInt(fd, getValueFromHand(player->bankHand));
+    printInt(fd, getValueFromHand((*(*player).bankHand)));
     write(fd, &separator, sizeof(char));
 
     printInt(fd, player->placing);
@@ -162,7 +163,7 @@ void writeCardsName(int fd, cardHandler_t * cards)
 {
   cardHandler_t * index = cards;
   char cardName;
-  //prints the cards' name of the player
+  //prints the cards' name
   while(index != NULL)
   {
     if(index->cards[0] != -1)

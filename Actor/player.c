@@ -19,10 +19,24 @@ void * playerManager(void * playerStruct)
     , player->strategy, player->stopVal, player->objMoney);
 
     player->placing = getBet(resultLastRound, player->placing, player->strategy);
+
     //waits for his cards
     pthread_barrier_wait(player->barrierRound);
 
     player->cardsVal = getValueFromHand(player->hand);
+
+    if(player->cardsVal <= player->stopVal)
+    {
+      player->wantCard = 1;
+    }
+    else
+      player->wantCard = 0;
+
+    //waits for the bank to notice his choice
+    pthread_barrier_wait(player->barrierRound);
+
+    //la banque a initialisée la barrière
+    pthread_barrier_wait(player->barrierRound);
 
     // loop until threshold reached
     while(player->cardsVal <= player->stopVal)
@@ -37,14 +51,15 @@ void * playerManager(void * playerStruct)
     pthread_barrier_wait(player->barrierRound);
 
     writePlayerLog(player);
+    writePlayerLog(player);
+
+    freeCardHandler(player->hand);
 
     //at the end, when it gets his money or not, test if he quits
     if(player->money >= player->objMoney)
       stopPlaying = 1;
 
   }
-
-  freeCardHandler(player->hand);
 
   return NULL;
 }

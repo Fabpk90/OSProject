@@ -33,7 +33,7 @@ typedef struct player
 	pthread_barrier_t * barrierCard;  //used for waiting for cards
 	cardHandler_t * hand;
 	uint cardsVal;
-	cardHandler_t * bankHand; //for printing log at each round end
+	cardHandler_t ** bankHand; //for printing log at each round end
 } player_t;
 
 void * playerManager(void *playerStruct);
