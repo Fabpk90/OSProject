@@ -8,57 +8,63 @@
 void * playerManager(void * playerStruct)
 {
   player_t *player = (player_t*) playerStruct;
-  bool stopPlaying = 0;
   char resultLastRound = FLAG_RESULT_NONE;
 
-  while(!stopPlaying)
+  player->isPlaying = 1;
+  player->isPlayingRound = 1;
+
+  while(player->isPlaying)
   {
-    stopPlaying = 1;
-
-    printf("Player: %d money: %d, placing: %d, strat: %d, stop: %d, obj: %d\n",player->id, player->money, player->placing
-    , player->strategy, player->stopVal, player->objMoney);
-
-    player->placing = getBet(resultLastRound, player->placing, player->strategy);
-
-    //waits for his cards
-    pthread_barrier_wait(player->barrierRound);
-
-    player->cardsVal = getValueFromHand(player->hand);
-
-    if(player->cardsVal <= player->stopVal)
+    while(player->isPlayingRound)
     {
-      player->wantCard = 1;
-    }
-    else
-      player->wantCard = 0;
+      player->isPlayingRound = 0;
 
-    //waits for the bank to notice his choice
-  //  pthread_barrier_wait(player->barrierRound);
+      printf("Player: %d money: %d, placing: %d, strat: %d, stop: %d, obj: %d\n",player->id, player->money, player->placing
+      , player->strategy, player->stopVal, player->objMoney);
 
-    //la banque a initialisée la barrière
-  //  pthread_barrier_wait(player->barrierRound);
+      player->placing = getBet(resultLastRound, player->placing, player->strategy);
 
-    // loop until threshold reached
-  /*  while(player->cardsVal <= player->stopVal)
-    {
-        //ask card
+      //waits for his cards
+      pthread_barrier_wait(player->barrierRound);
+
+      player->cardsVal = getValueFromHand(player->hand);
+
+      if(player->cardsVal <= player->stopVal)
+      {
         player->wantCard = 1;
-        pthread_barrier_wait(player->barrierCard);
-        player->cardsVal = getValueFromHand(player->hand); // to optimize, add up directly the val of the card given
-    }*/
+      }
+      else
+        player->wantCard = 0;
 
-  //  player->wantCard = 0; //not really needed, but still
-  //  pthread_barrier_wait(player->barrierRound);
+      //waits for the bank to notice his choice
+      pthread_barrier_wait(player->barrierRound);
 
-    writePlayerLog(player);
-    writePlayerLog(player);
+      //la banque a initialisée la barrière
+      pthread_barrier_wait(player->barrierRound);
 
-    freeCardHandler(player->hand);
+      // loop until threshold reached
+      while(player->cardsVal <= player->stopVal && player->isPlayingRound)
+      {
+          //ask card
+          player->wantCard = 1;
+          //notice me senpai de la part du joueur
+          pthread_barrier_wait(player->barrierCard);
+          //attends l'init de la barrière par la banque
+          pthread_barrier_wait(player->barrierCard);
+          player->cardsVal = getValueFromHand(player->hand); // to optimize, add up directly the val of the card given
+      }
+
+      player->wantCard = 0; //not really needed, but still
+      player->isPlayingRound = 0;
+      pthread_barrier_wait(player->barrierRound);
+
+      writePlayerLog(player);
+      freeCardHandler(player->hand);
+    }
 
     //at the end, when it gets his money or not, test if he quits
     if(player->money >= player->objMoney)
-      stopPlaying = 1;
-
+      player->isPlaying = 0;
   }
 
   return NULL;

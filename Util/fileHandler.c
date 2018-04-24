@@ -28,6 +28,7 @@ int initGame(const char * path, bank_t ** bank, player_t ** players)
 
       (*bank)->barrierRound = malloc(sizeof(pthread_t));
       (*bank)->barrierCard = malloc(sizeof(pthread_t));
+      (*bank)->barrierCardTmp = malloc(sizeof(pthread_t));
 
       pthread_barrier_init((*bank)->barrierRound, NULL, (*bank)->nbPlayer + 1);
       pthread_barrier_init((*bank)->barrierCard, NULL, (*bank)->nbPlayer + 1);
@@ -42,7 +43,6 @@ int initGame(const char * path, bank_t ** bank, player_t ** players)
           for(i = 0; i < (*bank)->nbPlayer; i++)
           {
               (*players)[i].id = i;
-              (*players)[i].bankHand = &(*bank)->hand;
               if((valRead = readInt(fd)))
               {
                 (*players)[i].money = valRead;
@@ -88,6 +88,7 @@ int initGame(const char * path, bank_t ** bank, player_t ** players)
 
                   (*players)[i].barrierRound = (*bank)->barrierRound;
                   (*players)[i].barrierCard = (*bank)->barrierCard;
+                  (*players)[i].barrierCardTmp = (*bank)->barrierCardTmp;
 
                   (*players)[i].moneyWon = 0;
                 }
@@ -127,10 +128,10 @@ int writePlayerLog(player_t * player)
     printInt(fd, player->cardsVal);
     write(fd, &separator, sizeof(char));
 
-    writeCardsName(fd, (*(*player).bankHand));
+    writeCardsName(fd, (*player->bankHand));
     write(fd, &separator, sizeof(char));
 
-    printInt(fd, getValueFromHand((*(*player).bankHand)));
+    printInt(fd, getValueFromHand((*player->bankHand)));
     write(fd, &separator, sizeof(char));
 
     printInt(fd, player->placing);
@@ -163,7 +164,7 @@ void writeCardsName(int fd, cardHandler_t * cards)
 {
   cardHandler_t * index = cards;
   char cardName;
-  //prints the cards' name
+  //prints the cards' name of the player
   while(index != NULL)
   {
     if(index->cards[0] != -1)
