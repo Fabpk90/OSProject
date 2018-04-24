@@ -106,8 +106,6 @@ uint getValueFromHand(cardHandler_t * cards)
 
     index = index->next;
   }
-
-  printf("valcards %d\n", val);
-
+  
   return val;
 }
