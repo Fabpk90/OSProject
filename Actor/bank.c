@@ -55,8 +55,8 @@ void bankManager(bank_t * bank, pthread_t * threads, player_t * players)
       //if(balckjack==1) Doublemise ou triple;
     }
     playerPlaying = getNbPlayersPlay(bank, players);
-    pthread_barrier_init(*(bank->barrierCard), NULL, playerPlaying + 1);
-    pthread_barrier_init(*(bank->barrierCardTmp), NULL, playerPlaying + 1);
+    pthread_barrier_init(bank->barrierCard, NULL, playerPlaying + 1);
+    pthread_barrier_init(bank->barrierCardTmp, NULL, playerPlaying + 1);
 
     //la banque a pris sa décision, donc on continue
     pthread_barrier_wait(bank->barrierRound);
@@ -89,12 +89,12 @@ void bankManager(bank_t * bank, pthread_t * threads, player_t * players)
       printf("4\n");
 
       playerPlaying = getNbPlayersPlay(bank,players);
-      pthread_barrier_init((*bank->barrierCard), NULL, playerPlaying + 1);
+      pthread_barrier_init(bank->barrierCard, NULL, playerPlaying + 1);
 
       //tout le monde a pris leurs decision
-      pthread_barrier_wait((*bank->barrierCardTmp));
+      pthread_barrier_wait(bank->barrierCardTmp);
       printf("5\n");
-      pthread_barrier_init((*bank->barrierCard), NULL, playerPlaying + 1);
+      pthread_barrier_init(bank->barrierCard, NULL, playerPlaying + 1);
 
       //whoWin(bank,players);
       /*for(i = 0; i < bank->nbPlayer; i++)
