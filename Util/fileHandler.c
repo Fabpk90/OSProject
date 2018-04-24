@@ -87,8 +87,8 @@ int initGame(const char * path, bank_t ** bank, player_t ** players)
                   }
 
                   (*players)[i].barrierRound = (*bank)->barrierRound;
-                  (*players)[i].barrierCard = (*bank)->barrierCard;
-                  (*players)[i].barrierCardTmp = (*bank)->barrierCardTmp;
+                  (*players)[i].barrierCard =  &((*bank)->barrierCard);
+                  (*players)[i].barrierCardTmp = &((*bank)->barrierCardTmp);
 
                   (*players)[i].moneyWon = 0;
                 }

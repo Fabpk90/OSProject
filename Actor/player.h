@@ -32,8 +32,8 @@ typedef struct player
 	result_t roundResult;
 	uint moneyWon;
 	pthread_barrier_t * barrierRound; //used for waitin that everyone has played/ at the start of the round
-	pthread_barrier_t * barrierCard;  //used for waiting for cards
-	pthread_barrier_t * barrierCardTmp;
+	pthread_barrier_t ** barrierCard;  //used for waiting for cards
+	pthread_barrier_t ** barrierCardTmp;
 	cardHandler_t * hand;
 	uint cardsVal;
 	cardHandler_t ** bankHand; //for printing log at each round end
