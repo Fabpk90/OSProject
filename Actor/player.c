@@ -15,7 +15,7 @@ void * playerManager(void * playerStruct)
   {
     stopPlaying = 1;
 
-    printf("money: %d, placing: %d, strat: %d, stop: %d, obj: %d\n", player->money, player->placing
+    printf("Player: %d money: %d, placing: %d, strat: %d, stop: %d, obj: %d\n",player->id, player->money, player->placing
     , player->strategy, player->stopVal, player->objMoney);
 
     player->placing = getBet(resultLastRound, player->placing, player->strategy);
@@ -25,19 +25,16 @@ void * playerManager(void * playerStruct)
     player->cardsVal = getValueFromHand(player->hand);
 
     // loop until threshold reached
-  /*  while(handValue <= player->stopVal)
+    while(player->cardsVal <= player->stopVal)
     {
         //ask card
         player->wantCard = 1;
         pthread_barrier_wait(player->barrierCard);
         player->cardsVal = getValueFromHand(player->hand); // to optimize, add up directly the val of the card given
-        //player->wantCard = 0;  <- this is done by the bank, for synchronisation purpose
-    }*/
-
-  //  printf("Value : %d\n", handValue);
+    }
 
     player->wantCard = 0; //not really needed, but still
-    //pthread_barrier_wait(player->barrierRound);
+    pthread_barrier_wait(player->barrierRound);
 
     writePlayerLog(player);
 

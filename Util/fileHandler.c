@@ -223,7 +223,7 @@ int printInt(int fd, int val)
     zeros++;
 
     //writes all the remaning zeros
-      for(i = 0; i < mod; i++, index++)
+      for(i = 0; i < zeros; i++, index++)
       {
         toWrite[index] = 48;
       }
