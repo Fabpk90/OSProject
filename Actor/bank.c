@@ -25,6 +25,9 @@ void bankManager(bank_t * bank, pthread_t * threads, player_t * players)
     //gives cards to all players
     for(i = 0; i < bank->nbPlayer; i++)
     {
+      if(players[i].hand != NULL)
+        freeCardHandler(players[i].hand);
+
       players[i].hand = initCardHandler();
       addCard(players[i].hand, getValueFromCardID(drawCard(decks)));
       addCard(players[i].hand, getValueFromCardID(drawCard(decks)));
@@ -32,13 +35,12 @@ void bankManager(bank_t * bank, pthread_t * threads, player_t * players)
       players[i].bankHand = &bank->hand;
     }
 
-
     addCard(bank->hand, getValueFromCardID(drawCard(decks)));
     addCard(bank->hand, getValueFromCardID(drawCard(decks)));
 
     //barrier utilisée pour les cartes, tout le monde attend
     pthread_barrier_wait(bank->barrierRound);
-    printf("1\n");
+    printf("11\n");
     //on attend que les joueurs prennent leurs décision, jouer ou pas
     pthread_barrier_wait(bank->barrierRound);
     printf("2\n");
@@ -54,15 +56,26 @@ void bankManager(bank_t * bank, pthread_t * threads, player_t * players)
       if(players[i].wantCard==0 && getValueFromHand(players[i].hand)==21) printf("Player do a BlackJack\n");
       //if(balckjack==1) Doublemise ou triple;
     }
+
     playerPlaying = getNbPlayersPlay(bank, players);
-    pthread_barrier_init(bank->barrierCard, NULL, playerPlaying + 1);
-    pthread_barrier_init(bank->barrierCardTmp, NULL, playerPlaying + 1);
+    if(playerPlaying > 0)
+    {
+      //pthread_barrier_destroy(bank->barrierCard);
+
+      pthread_barrier_init(bank->barrierCard, NULL, playerPlaying + 1);
+      pthread_barrier_init(bank->barrierCardTmp, NULL, playerPlaying + 1);
+
+      printf("%d attendre\n", playerPlaying);
+    }
 
     //la banque a pris sa décision, donc on continue
     pthread_barrier_wait(bank->barrierRound);
     printf("3\n");
+
     while(playerPlaying > 0)
     {
+      printf("wainting barrier card\n");
+      pthread_barrier_wait(bank->barrierCard);
       for(i = 0; i < bank->nbPlayer; i++)
       {
         if(players[i].wantCard==1)
@@ -75,6 +88,7 @@ void bankManager(bank_t * bank, pthread_t * threads, player_t * players)
           }
           else
           {
+            printf("q<ffsdfsdf\n");
             removeDeck(decks);
             //init and shuffling decks
             decks = initDeck(P52, bank->nbDecks);
@@ -84,21 +98,44 @@ void bankManager(bank_t * bank, pthread_t * threads, player_t * players)
         }
       }
 
-      printf("%d doivent attendre\n", playerPlaying + 1);
+      printf("%d doivent attendre\n", playerPlaying);
 
-      printf("jattends\n");
+      printf("jattends bank\n");
 
+      printf("3.5\n");
       //tout le monde recois des cartes ici
       pthread_barrier_wait(bank->barrierCard);
       printf("4\n");
 
-      playerPlaying = getNbPlayersPlay(bank,players);
-      pthread_barrier_init(bank->barrierCard, NULL, playerPlaying + 1);
-
       //tout le monde a pris leurs decision
       pthread_barrier_wait(bank->barrierCardTmp);
-      printf("5\n");
-      pthread_barrier_init(bank->barrierCard, NULL, playerPlaying + 1);
+
+    //  pthread_barrier_destroy(bank->barrierCard);
+      playerPlaying = getNbPlayersPlay(bank,players);
+      if(playerPlaying > 0)
+      {
+        pthread_barrier_destroy(bank->barrierCard);
+        pthread_barrier_init(bank->barrierCard, NULL, playerPlaying + 1);
+
+        pthread_barrier_wait(bank->barrierCardTmp);
+        pthread_barrier_destroy(bank->barrierCardTmp);
+        pthread_barrier_init(bank->barrierCardTmp, NULL, playerPlaying + 1);
+      }
+      else
+      {
+        pthread_barrier_destroy(bank->barrierCard);
+        pthread_barrier_init(bank->barrierCard, NULL, bank->nbPlayer);
+
+        //tout le monde a pris leurs decision
+        pthread_barrier_wait(bank->barrierCardTmp);
+
+        pthread_barrier_destroy(bank->barrierCardTmp);
+        pthread_barrier_init(bank->barrierCardTmp, NULL, bank->nbPlayer);
+        printf("5\n");
+      }
+
+
+      printf("playerPlaying %d\n", playerPlaying);
 
       //whoWin(bank,players);
       /*for(i = 0; i < bank->nbPlayer; i++)
@@ -111,11 +148,23 @@ void bankManager(bank_t * bank, pthread_t * threads, player_t * players)
       }*/
     }
 
+    printf("j'attends moi aussi la fin du round\n");
+    if(bank->nbRounds - 1  == 0)
+      {
+        for(i = 0; i < bank->nbPlayer; i++)
+        {
+          players[i].isPlayingRound = 0;
+          players[i].isPlaying = 0;
+        }
+      }
     pthread_barrier_wait(bank->barrierRound);
 
     bank->nbRounds --;
   }
 
+
+
+printf("bye bye\n");
   //pthread_wait(finGame);
 
   removeDeck(decks);
@@ -126,7 +175,7 @@ int getNbPlayersPlay(bank_t * bank, player_t * players)
   int i, playing = 0;
   for(i=0;i<bank->nbPlayer;i++)
   {
-    if(players[i].isPlayingRound==1) playing++;
+    if(players[i].wantCard==1) playing++;
   }
 
   return playing;
