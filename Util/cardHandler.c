@@ -9,8 +9,8 @@ cardHandler_t *  initCardHandler()
 {
  cardHandler_t *  cardHandler =  malloc(sizeof(cardHandler_t));
 
-  cardHandler->card[0] = -1;
-  cardHandler->card[1] = -1;
+  cardHandler->cards[0] = -1;
+  cardHandler->cards[1] = -1;
   cardHandler->next = NULL;
 
   return cardHandler;
@@ -24,23 +24,23 @@ void addCard(cardHandler_t * cardHandler, cardvalue_t card)
 
   while(!added)
   {
-    if(index->card[0] == -1)
+    if(index->cards[0] == -1)
     {
       added = 1;
-      index->card[0] = card;
+      index->cards[0] = card;
     }
-    else if(index->card[1] == -1)
+    else if(index->cards[1] == -1)
     {
       added = 1;
-      index->card[1] = card;
+      index->cards[1] = card;
     }
     else if(index->next == NULL)
     {
       addCardStruct = malloc(sizeof(cardHandler_t));
 
       addCardStruct->next = NULL;
-      addCardStruct->card[0] = card;
-      addCardStruct->card[1] = -1;
+      addCardStruct->cards[0] = card;
+      addCardStruct->cards[1] = -1;
 
       index->next = addCardStruct;
       added = 1;
@@ -65,5 +65,51 @@ void freeCardHandler(cardHandler_t * cardHandler)
 
     free(index);
   }
+}
 
+char getCardName(cardvalue_t card)
+{
+  switch (card)
+  {
+    case VA:
+      return 'A';
+    break;
+    case VX:
+      return 'X';
+    break;
+  	case VJ:
+      return 'J';
+    break;						//< Valet
+  	case VQ:
+      return 'Q';
+    break;						//< Dame
+  	case VK:
+      return 'K';
+    break;
+
+    default:
+      return ((int) card) + 48;
+  }
+}
+
+uint getValueFromHand(cardHandler_t * cards)
+{
+  uint val = 0;
+  cardHandler_t * index = cards;
+
+  while(index != NULL)
+  {
+    if(index->cards[0] != -1)
+      val += index->cards[0];
+    if(index->cards[1] != -1)
+      val += index->cards[1];
+
+    printf("card1: %d, card2: %d\n", index->cards[0], index->cards[1]);
+
+    index = index->next;
+  }
+
+  printf("val int %d\n", val);
+
+  return val;
 }
