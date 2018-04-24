@@ -45,41 +45,35 @@ void * playerManager(void * playerStruct)
       // loop until threshold reached
       while(player->wantCard == 1)
       {
-          //ask card
+          //ask a card
           player->wantCard = 1;
-          printf("barrier player card before\n");
-          printf("jattends joueur\n");
 
-          //notice me senpai de la part du joueur
+          //tell the bank he wants some
           pthread_barrier_wait(*(player->barrierCard));
-          printf("carte en arriv\n");
 
-          //la bank balance les cartes
+          //wait for the bank to give it
           pthread_barrier_wait(*(player->barrierCard));
-          printf("carte arrivee\n");
 
+          //checks if he needs some more
           player->cardsVal = getValueFromHand(player->hand);
           if(player->cardsVal >= player->stopVal)
             player->wantCard = 0;
           else
             player->wantCard = 1;
 
-          printf("barrier player card qqqqqq\n");
-          //attends l'init de la barrière par la banque
+          //the bank need to update the barrierCard
+          //the tmp barrier is here for that
+
           pthread_barrier_wait(*(player->barrierCardTmp));
 
-          printf("barrier player card aaa %d\n", player->wantCard);
-
-          //attends l'init de la barrière par la banque
+          //the bank has updated the barrierCard
           pthread_barrier_wait(*(player->barrierCardTmp));
-          printf("paf\n");
       }
 
       player->wantCard = 0; //not really needed, but still
       player->isPlayingRound = 0;
-      printf("j'attends la fin du round\n");
+      //end of the round
       pthread_barrier_wait(player->barrierRound);
-      printf("attente fin du round fini joueur %d\n", player->isPlayingRound);
 
       writePlayerLog(player);
     }
