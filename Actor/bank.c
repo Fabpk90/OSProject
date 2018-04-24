@@ -84,7 +84,11 @@ void bankManager(bank_t * bank, pthread_t * threads, player_t * players)
         }
       }
 
-      //tout le monde recois les cartes ici
+      printf("%d doivent attendre\n", playerPlaying + 1);
+
+      printf("jattends\n");
+
+      //tout le monde recois des cartes ici
       pthread_barrier_wait(bank->barrierCard);
       printf("4\n");
 
@@ -151,74 +155,30 @@ void whoWin(bank_t * bank, player_t * players)
   }
 }
 /*
-gcc -g3 -Wall Util/fileHandler.c Util/cardHandler.c Actor/bank.c Util/deck.c Actor/player.c main.c -pthread -o BlackJack.paf
-Util/fileHandler.c: Dans la fonction « initGame »:
-Util/fileHandler.c:90:54: error: « *bank » est un pointeur; vouliez-vous utiliser « -> » ?
-                   (*players)[i].barrierCard =  &(bank->barrierCard);
-                                                      ^~
-                                                      ->
-Util/fileHandler.c:91:56: error: « *bank » est un pointeur; vouliez-vous utiliser « -> » ?
-                   (*players)[i].barrierCardTmp = &(bank->barrierCardTmp);
-                                                        ^~
-                                                        ->
-Actor/bank.c: Dans la fonction « bankManager »:
-Actor/bank.c:58:26: error: type incompatible pour l'argument 1 de « pthread_barrier_init »
-     pthread_barrier_init(*(bank->barrierCard), NULL, playerPlaying + 1);
-                          ^
-In file included from Actor/bank.h:5:0,
-                 from Actor/bank.c:6:
-/usr/include/pthread.h:1069:12: note: « pthread_barrier_t * restrict {alias union <anonyme> * restrict} » attendu mais l'argument est de type « pthread_barrier_t {alias union <anonyme>} »
- extern int pthread_barrier_init (pthread_barrier_t *__restrict __barrier,
-            ^~~~~~~~~~~~~~~~~~~~
-Actor/bank.c:59:26: error: type incompatible pour l'argument 1 de « pthread_barrier_init »
-     pthread_barrier_init(*(bank->barrierCardTmp), NULL, playerPlaying + 1);
-                          ^
-In file included from Actor/bank.h:5:0,
-                 from Actor/bank.c:6:
-/usr/include/pthread.h:1069:12: note: « pthread_barrier_t * restrict {alias union <anonyme> * restrict} » attendu mais l'argument est de type « pthread_barrier_t {alias union <anonyme>} »
- extern int pthread_barrier_init (pthread_barrier_t *__restrict __barrier,
-            ^~~~~~~~~~~~~~~~~~~~
-Actor/bank.c:92:28: error: type incompatible pour l'argument 1 de « pthread_barrier_init »
-       pthread_barrier_init((*bank->barrierCard), NULL, playerPlaying + 1);
-                            ^
-In file included from Actor/bank.h:5:0,
-                 from Actor/bank.c:6:
-/usr/include/pthread.h:1069:12: note: « pthread_barrier_t * restrict {alias union <anonyme> * restrict} » attendu mais l'argument est de type « pthread_barrier_t {alias union <anonyme>} »
- extern int pthread_barrier_init (pthread_barrier_t *__restrict __barrier,
-            ^~~~~~~~~~~~~~~~~~~~
-Actor/bank.c:95:28: error: type incompatible pour l'argument 1 de « pthread_barrier_wait »
-       pthread_barrier_wait((*bank->barrierCardTmp));
-                            ^
-In file included from Actor/bank.h:5:0,
-                 from Actor/bank.c:6:
-/usr/include/pthread.h:1079:12: note: « pthread_barrier_t * {alias union <anonyme> *} » attendu mais l'argument est de type « pthread_barrier_t {alias union <anonyme>} »
- extern int pthread_barrier_wait (pthread_barrier_t *__barrier)
-            ^~~~~~~~~~~~~~~~~~~~
-Actor/bank.c:97:28: error: type incompatible pour l'argument 1 de « pthread_barrier_init »
-       pthread_barrier_init((*bank->barrierCard), NULL, playerPlaying + 1);
-                            ^
-In file included from Actor/bank.h:5:0,
-                 from Actor/bank.c:6:
-/usr/include/pthread.h:1069:12: note: « pthread_barrier_t * restrict {alias union <anonyme> * restrict} » attendu mais l'argument est de type « pthread_barrier_t {alias union <anonyme>} »
- extern int pthread_barrier_init (pthread_barrier_t *__restrict __barrier,
-            ^~~~~~~~~~~~~~~~~~~~
-Actor/player.c: Dans la fonction « playerManager »:
-Actor/player.c:48:32: warning: passage de l'argument 1 de « pthread_barrier_wait » depuis un type pointeur incompatible [-Wincompatible-pointer-types]
-           pthread_barrier_wait(player->barrierCard);
-                                ^~~~~~
-In file included from Actor/player.h:4:0,
-                 from Actor/player.c:4:
-/usr/include/pthread.h:1079:12: note: « pthread_barrier_t * {alias union <anonyme> *} » attendu mais l'argument est de type « pthread_barrier_t ** {alias union <anonyme> **} »
- extern int pthread_barrier_wait (pthread_barrier_t *__barrier)
-            ^~~~~~~~~~~~~~~~~~~~
-Actor/player.c:50:32: warning: passage de l'argument 1 de « pthread_barrier_wait » depuis un type pointeur incompatible [-Wincompatible-pointer-types]
-           pthread_barrier_wait(player->barrierCardTmp);
-                                ^~~~~~
-In file included from Actor/player.h:4:0,
-                 from Actor/player.c:4:
-/usr/include/pthread.h:1079:12: note: « pthread_barrier_t * {alias union <anonyme> *} » attendu mais l'argument est de type « pthread_barrier_t ** {alias union <anonyme> **} »
- extern int pthread_barrier_wait (pthread_barrier_t *__barrier)
-            ^~~~~~~~~~~~~~~~~~~~
-make: *** [Makefile:9: compile] Error 1
+1
+2
+barrier player card before
+jattends
+barrier player card before
+jattends
+3
+barrier player card before
+jattends
+card
+card
+card
+4 doivent attendre
+jattends
+4
+barrier player card
+barrier player card
+barrier player card
+5
+barrier player card before
+jattends
+card
+4 doivent attendre
+jattends
+
 
 */

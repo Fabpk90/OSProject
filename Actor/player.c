@@ -17,8 +17,6 @@ void * playerManager(void * playerStruct)
   {
     while(player->isPlayingRound)
     {
-      player->isPlayingRound = 0;
-
       printf("Player: %d money: %d, placing: %d, strat: %d, stop: %d, obj: %d\n",player->id, player->money, player->placing
       , player->strategy, player->stopVal, player->objMoney);
 
@@ -39,15 +37,28 @@ void * playerManager(void * playerStruct)
       //waits for the bank to notice his choice
       pthread_barrier_wait(player->barrierRound);
 
+      //waits for the bank to make his choice
+      pthread_barrier_wait(player->barrierRound);
+
       // loop until threshold reached
-      while(player->cardsVal <= player->stopVal && player->isPlayingRound)
+      while(player->wantCard && player->isPlayingRound)
       {
           //ask card
           player->wantCard = 1;
+          printf("barrier player card before\n");
+          printf("jattends\n");
           //notice me senpai de la part du joueur
-          pthread_barrier_wait(player->barrierCard);
+          pthread_barrier_wait(*(player->barrierCard));
+
+          player->cardsVal = getValueFromHand(player->hand);
+          if(player->cardsVal >= player->stopVal)
+            player->wantCard = 0;
+          else
+            player->wantCard = 1;
+
+          printf("barrier player card \n");
           //attends l'init de la barrière par la banque
-          pthread_barrier_wait(player->barrierCardTmp);
+          pthread_barrier_wait(*(player->barrierCardTmp));
           player->cardsVal = getValueFromHand(player->hand); // to optimize, add up directly the val of the card given
       }
 
