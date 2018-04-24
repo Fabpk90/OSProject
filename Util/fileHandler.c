@@ -147,6 +147,8 @@ int writePlayerLog(player_t * player)
 
     printInt(fd, player->money);
 
+    write(fd, "\n", 1);
+
     close(fd);
 
     return 0;
