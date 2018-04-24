@@ -185,9 +185,7 @@ int printInt(int fd, int val)
 {
   char toWrite[32];
   int index = 0, divisor = 1;
-  int i = 0, mod = 0;
-
-  printf("val param: %d\n", val);
+  int i = 0, zeros = 0;
 
   if(val == 0)
   {
@@ -219,10 +217,10 @@ int printInt(int fd, int val)
     //caluclates the zeros to add
     while(divisor / 10 > 1)
     {
-      mod++;
+      zeros++;
       divisor /= 10;
     }
-    mod++;
+    zeros++;
 
     //writes all the remaning zeros
       for(i = 0; i < mod; i++, index++)
