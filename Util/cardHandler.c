@@ -104,12 +104,10 @@ uint getValueFromHand(cardHandler_t * cards)
     if(index->cards[1] != -1)
       val += index->cards[1];
 
-    printf("card1: %d, card2: %d\n", index->cards[0], index->cards[1]);
-
     index = index->next;
   }
 
-  printf("val int %d\n", val);
+  printf("valcards %d\n", val);
 
   return val;
 }

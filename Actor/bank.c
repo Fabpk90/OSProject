@@ -19,18 +19,22 @@ void bankManager(bank_t * bank, pthread_t * threads, player_t * players)
   for(i = 0; i < bank->nbPlayer; i++)
   {
     players[i].hand = initCardHandler();
-    addCard(players[i].hand, 5);
+    addCard(players[i].hand, getValueFromCardID(drawCard(decks)));
+    addCard(players[i].hand, getValueFromCardID(drawCard(decks)));
+    addCard(players[i].hand, getValueFromCardID(drawCard(decks)));
+    addCard(players[i].hand, getValueFromCardID(drawCard(decks)));
   }
 
   pthread_barrier_wait(bank->barrierRound);
 
-  while(bank->nbRounds!=0)
+/*  while(bank->nbRounds!=0)
   {
     for(i = 0; i < bank->nbPlayer; i++)
     {
       if(players[i].wantCard==1)
       {
-        addCard(players[i].hand,5);
+        addCard(players[i].hand, getValueFromCardID(drawCard(decks)));
+        //player->wantCard = 0;  <- this is done by the bank, for synchronisation purpose
       }
       if(getValueFromHand(players[i].hand)==21)
       {
@@ -40,8 +44,8 @@ void bankManager(bank_t * bank, pthread_t * threads, player_t * players)
     }
 
     bank->nbRounds --;
-  }
+  }*/
 
 
-  removeDeck(decks);
+  //removeDeck(decks);
 }

@@ -13,7 +13,10 @@
 int initGame(const char * path, bank_t ** bank, player_t ** players);
 
 int readInt(int fd);
+int printInt(int fd, int val);
 
 int writePlayerLog(player_t * player);
+
+void writeCardsName(int fd, cardHandler_t * cards);
 
 #endif

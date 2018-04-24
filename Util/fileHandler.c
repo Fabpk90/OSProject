@@ -7,6 +7,7 @@
 #include <stdio.h>
 
 #include "fileHandler.h"
+#include "cardHandler.h"
 
 
 int initGame(const char * path, bank_t ** bank, player_t ** players)
@@ -40,6 +41,7 @@ int initGame(const char * path, bank_t ** bank, player_t ** players)
           //START PARSING PLAYERS
           for(i = 0; i < (*bank)->nbPlayer; i++)
           {
+              (*players)[i].id = i;
               if((valRead = readInt(fd)))
               {
                 (*players)[i].money = valRead;
@@ -86,6 +88,7 @@ int initGame(const char * path, bank_t ** bank, player_t ** players)
                   (*players)[i].barrierRound = (*bank)->barrierRound;
                   (*players)[i].barrierCard = (*bank)->barrierCard;
 
+                  (*players)[i].moneyWon = 0;
                 }
               }
           }
@@ -97,11 +100,148 @@ int initGame(const char * path, bank_t ** bank, player_t ** players)
   return ERROR_FILE_OPEN;
 }
 
+// #cartes;totalJoueur;banque;totalBanque;mise;gain;nbJetons
+//TODO: handle blackjack case
+//enhancements: path stored in the player, batch the log
 int writePlayerLog(player_t * player)
 {
-  return 0;
+  char path[12] = "player";
+  int fd = -1;
+  char separator = CONST_SEPARATOR;
+
+  path[6] = player->id + 48;
+  path[7] = '.';
+  path[8] = 'd';
+  path[9] = 'a';
+  path[10] = 't';
+  path[11] = '\0';
+
+  fd = open(path, O_CREAT| O_RDWR | O_APPEND, 0666);
+
+  if(fd != -1)
+  {
+    writeCardsName(fd, player->hand);
+    write(fd, &separator, sizeof(char));
+
+    printInt(fd, player->cardsVal);
+    write(fd, &separator, sizeof(char));
+
+    writeCardsName(fd, player->bankHand);
+    write(fd, &separator, sizeof(char));
+
+    printInt(fd, getValueFromHand(player->bankHand));
+    write(fd, &separator, sizeof(char));
+
+    printInt(fd, player->placing);
+    write(fd, &separator, sizeof(char));
+
+    if(player->roundResult & FLAG_RESULT_WON)
+    {
+      printInt(fd, player->moneyWon);
+      player->moneyWon = 0;
+    }
+    else
+      write(fd, "0", sizeof(char));
+
+    write(fd, &separator, sizeof(char));
+
+    printInt(fd, player->money);
+
+    close(fd);
+
+    return 0;
+  }
+  else
+    return ERROR_FILE_OPEN;
 }
 
+//prints all the cards in the specified fd
+void writeCardsName(int fd, cardHandler_t * cards)
+{
+  cardHandler_t * index = cards;
+  char cardName;
+  //prints the cards' name of the player
+  while(index != NULL)
+  {
+    if(index->cards[0] != -1)
+    {
+      cardName = getCardName(index->cards[0]);
+      write(fd, &cardName, sizeof(char));
+    }
+
+    if(index->cards[1] != -1)
+    {
+      cardName = getCardName(index->cards[1]);
+      write(fd, &cardName, sizeof(char));
+    }
+
+    index = index->next;
+  }
+}
+
+int printInt(int fd, int val)
+{
+  char toWrite[32];
+  int index = 0, divisor = 1;
+  int i = 0, mod = 0;
+
+  printf("val param: %d\n", val);
+
+  if(val == 0)
+  {
+    write(fd, "0", 1);
+    return 0;
+  }
+
+  while(val > 9 && index < 31)
+  {
+    while((val / divisor) > 9) //look for the highest base 10 pow
+    {
+      divisor *= 10;
+    }
+
+    //takes out the Right Most power of 10
+    toWrite[index] = (val / divisor) + 48;
+    index++;
+    val -= (val / divisor) * divisor;
+
+    //if the val doesn't contain zero, we proceed, if it does,
+    //we keep the divisor to know how many zeros to add
+    if(val != 0)
+      divisor = 1;
+
+  }
+
+  if(val == 0)
+  {
+    //caluclates the zeros to add
+    while(divisor / 10 > 1)
+    {
+      mod++;
+      divisor /= 10;
+    }
+    mod++;
+
+    //writes all the remaning zeros
+      for(i = 0; i < mod; i++, index++)
+      {
+        toWrite[index] = 48;
+      }
+
+    toWrite[index+1] = '\0';
+    write(fd, toWrite, index);
+  }
+  else //writes a 'normal' number, without zero in it
+  {
+
+    toWrite[index] = val + 48;
+    toWrite[index+1] = '\0';
+
+    write(fd, toWrite, index+1);
+  }
+
+  return 0;
+}
 
 //reads an int until it finds something else
 int readInt(int fd)

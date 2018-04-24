@@ -11,10 +11,12 @@
 #define FLAG_GAMBLING_LESS 	4
 
 #define FLAG_RESULT_WON 	1
-#define FLAG_RESULT_LOSS 	2
-#define FLAG_RESULT_NONE 	4
+#define FLAG_RESULT_WON_BJ 2
+#define FLAG_RESULT_LOSS 	4
+#define FLAG_RESULT_NONE 	8
 
 typedef bool gambling_t;
+typedef bool result_t;
 
 typedef struct player
 {
@@ -25,15 +27,16 @@ typedef struct player
 	uint stopVal;
 	uint objMoney;
 	bool wantCard;
+	result_t roundResult;
+	uint moneyWon;
 	pthread_barrier_t * barrierRound; //used for waitin that everyone has played/ at the start of the round
 	pthread_barrier_t * barrierCard;  //used for waiting for cards
 	cardHandler_t * hand;
+	uint cardsVal;
 	cardHandler_t * bankHand; //for printing log at each round end
 } player_t;
 
 void * playerManager(void *playerStruct);
-
-int getValueFromHand(cardHandler_t * cards);
 
 int getBet(char resultLastRound, int placing, gambling_t strategy);
 

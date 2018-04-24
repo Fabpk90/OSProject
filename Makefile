@@ -1,3 +1,7 @@
+clean: compile
+	rm -f player*.dat
+	make run
+
 run: compile
 	./BlackJack.paf
 

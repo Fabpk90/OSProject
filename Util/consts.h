@@ -4,5 +4,7 @@
 typedef unsigned int uint;
 typedef char bool;
 
+#define CONST_SEPARATOR ';'
+
 
 #endif
