@@ -33,22 +33,22 @@ void * playerManager(void * playerStruct)
       player->wantCard = 0;
 
     //waits for the bank to notice his choice
-    pthread_barrier_wait(player->barrierRound);
+  //  pthread_barrier_wait(player->barrierRound);
 
     //la banque a initialisée la barrière
-    pthread_barrier_wait(player->barrierRound);
+  //  pthread_barrier_wait(player->barrierRound);
 
     // loop until threshold reached
-    while(player->cardsVal <= player->stopVal)
+  /*  while(player->cardsVal <= player->stopVal)
     {
         //ask card
         player->wantCard = 1;
         pthread_barrier_wait(player->barrierCard);
         player->cardsVal = getValueFromHand(player->hand); // to optimize, add up directly the val of the card given
-    }
+    }*/
 
-    player->wantCard = 0; //not really needed, but still
-    pthread_barrier_wait(player->barrierRound);
+  //  player->wantCard = 0; //not really needed, but still
+  //  pthread_barrier_wait(player->barrierRound);
 
     writePlayerLog(player);
     writePlayerLog(player);
