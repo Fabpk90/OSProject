@@ -27,7 +27,6 @@ void * playerManager(void * playerStruct)
     if(player->cardsVal <= player->stopVal)
     {
       player->wantCard = 1;
-      printf("i want a card \n");
     }
     else
     {
@@ -40,12 +39,10 @@ void * playerManager(void * playerStruct)
     //waits for the bank to make its choice
     pthread_barrier_wait(*(player->barrierRound));
 
-    printf("want card ? %d\n", player->wantCard);
-
     // loop until threshold reached
     while(player->wantCard == 1)
     {
-        printf("Wainting for card \n");
+
         //tell the bank he wants some
         pthread_barrier_wait(*(player->barrierCard));
 
@@ -58,9 +55,9 @@ void * playerManager(void * playerStruct)
 
         //the bank need to update the barrierCard
         //the tmp barrier is here for that
-        printf("wainting for cards tmp\n");
+
         pthread_barrier_wait(*(player->barrierCardTmp));
-        printf("wainting for bank reponse cards tmp\n");
+
         //the bank has updated the barrierCard
         pthread_barrier_wait(*(player->barrierCardTmp));
     }
@@ -77,17 +74,11 @@ void * playerManager(void * playerStruct)
     if(player->money >= player->objMoney)
       player->isPlaying = 0;
 
-    printf("wainting the update 1\n");
     //the bnk updates the barrierRound
     pthread_barrier_wait(*(player->barrierRoundTmp));
-
     freeCardHandler(player->hand);
-    printf("wainting the update 2\n");
     pthread_barrier_wait(*(player->barrierRoundTmp));
-    printf("c'est reparti!\n");
-}
-
-printf("salut!\n");
+  }
 
   pthread_exit(0);
 

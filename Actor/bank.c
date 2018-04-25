@@ -56,17 +56,14 @@ void bankManager(bank_t * bank, pthread_t * threads, player_t * players)
         printf("Player %d does a BlackJack\n", i);
         isBlackJacking = 1;
       }
-      //if(balckjack==1) Doublemise ou triple;
     }
 
     if(isBlackJacking)
     {
-      whoWin(bank, players, 1);
+      checkForWinners(bank, players, 1);
     }
 
     playerWantCard = getNbPlayerWantCard(bank->nbPlayer, players);
-
-    printf("%d players want card\n", playerWantCard);
 
     //if players need to play
     if(playerWantCard > 0)
@@ -79,7 +76,6 @@ void bankManager(bank_t * bank, pthread_t * threads, player_t * players)
 
     //barrier to notify the bank's decision
     pthread_barrier_wait(bank->barrierRound);
-    printf("paf\n");
 
     while(playerWantCard > 0)
     {
@@ -126,7 +122,7 @@ void bankManager(bank_t * bank, pthread_t * threads, player_t * players)
         pthread_barrier_wait(bank->barrierCardTmp);
     }
 
-    whoWin(bank, players, 0);
+    checkForWinners(bank, players, 0);
     if(bank->nbRounds - 1  == 0) // end of the game
       {
         //tell the player to stop playing
@@ -135,7 +131,7 @@ void bankManager(bank_t * bank, pthread_t * threads, player_t * players)
           players[i].isPlaying = 0;
         }
       }
-    printf("bank wiainth end round\n");
+
     pthread_barrier_wait(bank->barrierRound);
 
     pthread_barrier_wait(bank->barrierRoundTmp);
@@ -152,10 +148,6 @@ void bankManager(bank_t * bank, pthread_t * threads, player_t * players)
 
     bank->nbRounds --;
   }
-
-
-
-printf("bye bye\n");
 
   removeDeck(decks);
 }
@@ -183,12 +175,11 @@ int getNbPlayerWantCard(uint nb, player_t * players)
   return wanna;
 }
 
-void whoWin(bank_t * bank, player_t * players, bool firstDraw)
+void checkForWinners(bank_t * bank, player_t * players, bool firstDraw)
 {
   int i, playerMax = 0, playerMaxIndex = 0;
   uint valHand = 0, valHandBank = 0;
 
-  printf("nbPlayer %d \n", bank->nbPlayer);
   int * checked = calloc(bank->nbPlayer, sizeof(int));
 
   //finds the highest score
@@ -233,7 +224,7 @@ void whoWin(bank_t * bank, player_t * players, bool firstDraw)
         players[playerMaxIndex].money += players[playerMaxIndex].placing;
         players[playerMaxIndex].moneyWon = players[playerMaxIndex].placing;
     }
-    
+
     players[playerMaxIndex].roundResult = FLAG_RESULT_WON;
   }
   else if(valHand == valHandBank)
