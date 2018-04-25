@@ -15,8 +15,7 @@ void * playerManager(void * playerStruct)
 //  printf("Player: %d money: %d, placing: %d, strat: %d, stop: %d, obj: %d\n",player->id, player->money, player->placing
 //  , player->strategy, player->stopVal, player->objMoney);
 
-  while(player->isPlaying)  if(resultLastRound & FLAG_RESULT_NONE || strategy & FLAG_GAMBLING_CONST)
-    return placingBase;
+  while(player->isPlaying)
   {
     player->placing = getBet(player->roundResult, player->placing, player->placingBase, player->strategy);
 
