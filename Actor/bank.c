@@ -46,8 +46,8 @@ void bankManager(bank_t * bank, pthread_t * threads, player_t * players)
     //cas où BlackJack
     if(getValueFromHand(bank->hand)==21)
     {
-      printf("Bank does a BlackJack\n");
       isBlackJacking = 1;
+      printf("Bank do a BlackJack round:%d\n", bank->nbRounds);
       //blackjack=1; créer une variable bool
       for(i = 0; i < bank->nbPlayer; i++)
         players->isPlayingRound=0;
@@ -59,7 +59,6 @@ void bankManager(bank_t * bank, pthread_t * threads, player_t * players)
         printf("Player %d does a BlackJack\n", i);
         isBlackJacking = 1;
       }
-
       //if(balckjack==1) Doublemise ou triple;
     }
 
@@ -132,7 +131,6 @@ void bankManager(bank_t * bank, pthread_t * threads, player_t * players)
     }
 
     whoWin(bank, players, 0);
-
     if(bank->nbRounds - 1  == 0) // end of the game
       {
         //tell the player to stop playing
