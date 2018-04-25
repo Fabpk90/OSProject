@@ -22,6 +22,7 @@ typedef struct player
 {
 	uint id;
 	uint money;
+	uint placingBase;
 	uint placing;
 	gambling_t strategy;
 	uint stopVal;
@@ -42,6 +43,6 @@ typedef struct player
 
 void * playerManager(void *playerStruct);
 
-int getBet(char resultLastRound, int placing, gambling_t strategy);
+int getBet(char resultLastRound, uint placing, uint placingBase ,gambling_t strategy);
 
 #endif // PLAYER_H

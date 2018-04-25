@@ -15,9 +15,10 @@ void * playerManager(void * playerStruct)
 //  printf("Player: %d money: %d, placing: %d, strat: %d, stop: %d, obj: %d\n",player->id, player->money, player->placing
 //  , player->strategy, player->stopVal, player->objMoney);
 
-  while(player->isPlaying)
+  while(player->isPlaying)  if(resultLastRound & FLAG_RESULT_NONE || strategy & FLAG_GAMBLING_CONST)
+    return placingBase;
   {
-    player->placing = getBet(player->roundResult, player->placing, player->strategy);
+    player->placing = getBet(player->roundResult, player->placing, player->placingBase, player->strategy);
 
     //waits for his cards
     pthread_barrier_wait(*(player->barrierRound));
@@ -33,7 +34,6 @@ void * playerManager(void * playerStruct)
     {
       player->wantCard = 0;
     }
-
 
     //waits for the bank to notice his choice
     pthread_barrier_wait(*(player->barrierRound));
@@ -61,7 +61,7 @@ void * playerManager(void * playerStruct)
         //the tmp barrier is here for that
         printf("wainting for cards tmp\n");
         pthread_barrier_wait(*(player->barrierCardTmp));
-printf("wainting for bank reponse cards tmp\n");
+        printf("wainting for bank reponse cards tmp\n");
         //the bank has updated the barrierCard
         pthread_barrier_wait(*(player->barrierCardTmp));
     }
@@ -95,28 +95,27 @@ printf("salut!\n");
   return NULL;
 }
 
-int getBet(char resultLastRound, int placing, gambling_t strategy)
+int getBet(char resultLastRound, uint placing, uint placingBase ,gambling_t strategy)
 {
   if(resultLastRound & FLAG_RESULT_NONE || strategy & FLAG_GAMBLING_CONST)
-    return placing;
+    return placingBase;
 
   if(strategy & FLAG_GAMBLING_MORE)
   {
     if(resultLastRound & FLAG_RESULT_LOSS)
     {
-      placing <<= 1;
-      if(!placing)
-        return 1;
-      return placing;
-    }
       return placing << 1;
-
-    return placing;
+    }
+      return placingBase;
   }
   else // less
   {
     if(resultLastRound & FLAG_RESULT_LOSS)
-      return placing >> 1;
-    return placing;
+    {
+      if(placing << 1 != 0)
+        return placing >> 1;
+      return 1;
+    }
+    return placingBase;
   }
 }

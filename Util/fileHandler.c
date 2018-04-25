@@ -53,7 +53,7 @@ int initGame(const char * path, bank_t ** bank, player_t ** players)
 
                 if((valRead = readInt(fd)))
                 {
-                  (*players)[i].placing = valRead;
+                  (*players)[i].placingBase = valRead;
 
                   lseek(fd, -1, SEEK_CUR);
                   read(fd, &valRead, sizeof(char));

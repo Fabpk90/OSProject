@@ -61,7 +61,6 @@ void bankManager(bank_t * bank, pthread_t * threads, player_t * players)
 
     if(isBlackJacking)
     {
-      printf("black\n");
       whoWin(bank, players, 1);
     }
 
