@@ -213,8 +213,8 @@ void checkForWinners(bank_t * bank, player_t * players, bool firstDraw)
   {
     if(firstDraw)
     {
-      players[playerMaxIndex].money += players[playerMaxIndex].placing >> 2;
-      players[playerMaxIndex].moneyWon = players[playerMaxIndex].placing >> 2;
+      players[playerMaxIndex].money += players[playerMaxIndex].placing * 3;
+      players[playerMaxIndex].moneyWon = players[playerMaxIndex].placing * 3;
     }
     else
     {
