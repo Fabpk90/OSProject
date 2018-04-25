@@ -9,7 +9,8 @@ void bankManager(bank_t * bank, pthread_t * threads, player_t * players)
 {
   uint i = 0;
   deck_t * decks = NULL;
-  int playerPlaying = 0;
+  int playerWantCard = 0;
+  bool isBlackJacking = 0;
   initDeckLib();
 
   //init and shuffling decks
@@ -18,16 +19,14 @@ void bankManager(bank_t * bank, pthread_t * threads, player_t * players)
 
   while(bank->nbRounds!=0 )
   {
-    playerPlaying = 0;
+    isBlackJacking = 0;
+    playerWantCard = 0;
 
     bank->hand = initCardHandler();
 
     //gives cards to all players
     for(i = 0; i < bank->nbPlayer; i++)
     {
-      if(players[i].hand != NULL)
-        freeCardHandler(players[i].hand);
-
       players[i].hand = initCardHandler();
       addCard(players[i].hand, getValueFromCardID(drawCard(decks)));
       addCard(players[i].hand, getValueFromCardID(drawCard(decks)));
@@ -47,32 +46,46 @@ void bankManager(bank_t * bank, pthread_t * threads, player_t * players)
     //cas où BlackJack
     if(getValueFromHand(bank->hand)==21)
     {
-      printf("Bank do a BlackJack\n");
+      printf("Bank does a BlackJack\n");
+      isBlackJacking = 1;
       //blackjack=1; créer une variable bool
     }
-    for(i = 0; i < bank->nbPlayer; i++)
+    for(i = 0; i < bank->nbPlayer && !isBlackJacking; i++)
     {
-      if(players[i].wantCard==0 && getValueFromHand(players[i].hand)==21) printf("Player do a BlackJack\n");
+      if(getValueFromHand(players[i].hand)==21)
+      {
+        printf("Player %d does a BlackJack\n", i);
+        isBlackJacking = 1;
+      }
+
       //if(balckjack==1) Doublemise ou triple;
     }
 
-    playerPlaying = getNbPlayersPlay(bank, players);
+    if(isBlackJacking)
+    {
+      printf("black\n");
+      whoWin(bank, players, 1);
+    }
+
+    playerWantCard = getNbPlayerWantCard(bank->nbPlayer, players);
+
+    printf("%d players want card\n", playerWantCard);
+
     //if players need to play
-    if(playerPlaying > 0)
+    if(playerWantCard > 0)
     {
       //pthread_barrier_destroy(bank->barrierCard);
       //includes the bank in the waiters
-      pthread_barrier_init(bank->barrierCard, NULL, playerPlaying + 1);
-      pthread_barrier_init(bank->barrierCardTmp, NULL, playerPlaying + 1);
+      pthread_barrier_init(bank->barrierCard, NULL, playerWantCard + 1);
+      pthread_barrier_init(bank->barrierCardTmp, NULL, playerWantCard + 1);
     }
 
     //barrier to notify the bank's decision
     pthread_barrier_wait(bank->barrierRound);
+    printf("paf\n");
 
-    while(playerPlaying > 0)
+    while(playerWantCard > 0)
     {
-      //wait for the players who wants their cards
-      pthread_barrier_wait(bank->barrierCard);
       for(i = 0; i < bank->nbPlayer; i++)
       {
         if(players[i].wantCard==1)
@@ -80,7 +93,6 @@ void bankManager(bank_t * bank, pthread_t * threads, player_t * players)
           if(getDrawPileSize(decks)!=0)
           {
             addCard(players[i].hand, getValueFromCardID(drawCard(decks)));
-            players->wantCard = 0;  // this is done , for synchronisation purpose
           }
           else
           {
@@ -98,53 +110,48 @@ void bankManager(bank_t * bank, pthread_t * threads, player_t * players)
       //the players make a choice (wether they want another card)
       pthread_barrier_wait(bank->barrierCardTmp);
 
-      playerPlaying = getNbPlayersPlay(bank,players);
+      playerWantCard = getNbPlayerWantCard(bank->nbPlayer,players);
 
       //Updates the card barrier
       //using a tmp barrier for synchro
 
-      if(playerPlaying > 0)
+      if(playerWantCard > 0)
       {
         pthread_barrier_destroy(bank->barrierCard);
-        pthread_barrier_init(bank->barrierCard, NULL, playerPlaying + 1);
+        pthread_barrier_init(bank->barrierCard, NULL, playerWantCard + 1);
 
-        pthread_barrier_wait(bank->barrierCardTmp);
-        pthread_barrier_destroy(bank->barrierCardTmp);
-        pthread_barrier_init(bank->barrierCardTmp, NULL, playerPlaying + 1);
-      }
-      else //if no player wants to play, reset the barrier to default
-      {
-        pthread_barrier_destroy(bank->barrierCard);
-        pthread_barrier_init(bank->barrierCard, NULL, bank->nbPlayer + 1);
-
-        //tout le monde a pris leurs decision
         pthread_barrier_wait(bank->barrierCardTmp);
 
         pthread_barrier_destroy(bank->barrierCardTmp);
-        pthread_barrier_init(bank->barrierCardTmp, NULL, bank->nbPlayer + 1);
+        pthread_barrier_init(bank->barrierCardTmp, NULL, playerWantCard + 1);
       }
-
-      //whoWin(bank,players);
-      /*for(i = 0; i < bank->nbPlayer; i++)
-      {
-        if(getValueFromHand(players[i].hand)==21 || getValueFromHand(bank->hand)==21)
-        {
-          printf("Win");
-          bank->nbRounds=0;
-        }
-      }*/
+      else //nobody wants cards, so we init nothing
+        pthread_barrier_wait(bank->barrierCardTmp);
     }
+
+    whoWin(bank, players, 0);
 
     if(bank->nbRounds - 1  == 0) // end of the game
       {
         //tell the player to stop playing
         for(i = 0; i < bank->nbPlayer; i++)
         {
-          players[i].isPlayingRound = 0;
           players[i].isPlaying = 0;
         }
       }
+    printf("bank wiainth end round\n");
     pthread_barrier_wait(bank->barrierRound);
+
+    pthread_barrier_wait(bank->barrierRoundTmp);
+
+    pthread_barrier_destroy(bank->barrierRound);
+    pthread_barrier_init(bank->barrierRound, NULL, getNbPlayersPlay(bank->nbPlayer, players) + 1);
+
+    pthread_barrier_wait(bank->barrierRoundTmp);
+
+    pthread_barrier_destroy(bank->barrierRoundTmp);
+    pthread_barrier_init(bank->barrierRoundTmp,NULL, getNbPlayersPlay(bank->nbPlayer, players) + 1);
+
 
     bank->nbRounds --;
   }
@@ -156,38 +163,116 @@ printf("bye bye\n");
   removeDeck(decks);
 }
 
-int getNbPlayersPlay(bank_t * bank, player_t * players)
+int getNbPlayersPlay(uint nb, player_t * players)
 {
   int i, playing = 0;
-  for(i=0;i<bank->nbPlayer;i++)
+  for(i=0;i<nb;i++)
   {
-    if(players[i].wantCard==1) playing++;
+    if(players[i].isPlaying==1) playing++;
   }
 
   return playing;
 }
 
-void whoWin(bank_t * bank, player_t * players)
+int getNbPlayerWantCard(uint nb, player_t * players)
 {
-  int i;
+  int i = 0, wanna = 0;
 
+  for(i = 0; i < nb; i++)
+  {
+    wanna += players[i].wantCard;
+  }
+
+  return wanna;
+}
+
+void whoWin(bank_t * bank, player_t * players, bool firstDraw)
+{
+  int i, playerMax = 0, playerMaxIndex = 0;
+  uint valHand = 0, valHandBank = 0;
+
+  printf("nbPlayer %d \n", bank->nbPlayer);
+  int * checked = calloc(bank->nbPlayer, sizeof(int));
+
+  //finds the highest score
+  //and handles hands > 21
   for(i=0;i<bank->nbPlayer;i++)
   {
-    if(getValueFromHand(players[i].hand)==21)
+    valHand = getValueFromHand(players[i].hand);
+    if(valHand > playerMax && valHand <= 21)
     {
-      printf("Player win\n");
+      playerMax = valHand;
+      playerMaxIndex = i;
       //gérer mise
     }
-  }
-  for(i=0;i<bank->nbPlayer;i++)
-  {
-    players[i].isPlaying=0;
+    else if(valHand > 21)
+    {
+      if(players[i].money - players[i].placing >= 0)
+      {
+        players[i].money -= players[i].placing;
+        players[i].roundResult = FLAG_RESULT_LOSS;
+      }
+      else
+      {
+        players[i].money = 0;
+        players[i].isPlaying = 0;
+      }
+
+      players[i].roundResult = FLAG_RESULT_LOSS;
+      checked[i] = 1;
+    }
   }
 
-  if(getValueFromHand(bank->hand)==21)
+  valHandBank = getValueFromHand(bank->hand);
+
+  if(valHand > valHandBank || valHandBank > 21)
   {
-    printf("Bank win\n");
+    if(firstDraw)
+      players[playerMaxIndex].money += players[playerMaxIndex].placing >> 2;
+    else
+      players[playerMaxIndex].money += players[playerMaxIndex].placing;
+
+    players[playerMaxIndex].roundResult = FLAG_RESULT_WON;
   }
+  else if(valHand == valHandBank)
+  {
+    players[playerMaxIndex].roundResult = FLAG_RESULT_NONE;
+  }
+
+  checked[playerMaxIndex] = 1;
+
+  for(i=0;i<bank->nbPlayer;i++)
+  {
+    //if not checked yet
+    if(!(checked[i] & 1))
+    {
+      valHand = getValueFromHand(players[i].hand);
+      if(valHand > valHandBank || valHandBank > 21)
+      {
+        players[i].money += players[i].placing;
+        players[i].roundResult = FLAG_RESULT_WON;
+      }
+      else if(valHand == valHandBank)
+      {
+        players[i].roundResult = FLAG_RESULT_NONE;
+      }
+      else
+      {
+        if(players[i].money - players[i].placing >= 0)
+        {
+          players[i].money -= players[i].placing;
+          players[i].roundResult = FLAG_RESULT_LOSS;
+        }
+        else
+        {
+          players[i].money = 0;
+          players[i].isPlaying = 0;
+        }
+      }
+    }
+  }
+
+  free(checked);
 }
 /*
 

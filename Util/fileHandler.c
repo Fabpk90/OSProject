@@ -26,11 +26,14 @@ int initGame(const char * path, bank_t ** bank, player_t ** players)
       (*bank)->nbPlayer = valRead;
       (*players) = malloc(sizeof(player_t) * valRead);
 
-      (*bank)->barrierRound = malloc(sizeof(pthread_t));
-      (*bank)->barrierCard = malloc(sizeof(pthread_t));
-      (*bank)->barrierCardTmp = malloc(sizeof(pthread_t));
+      (*bank)->barrierCard = malloc(sizeof(pthread_barrier_t));
+      (*bank)->barrierCardTmp = malloc(sizeof(pthread_barrier_t));
+      (*bank)->barrierRound = malloc(sizeof(pthread_barrier_t));
+      (*bank)->barrierRoundTmp = malloc(sizeof(pthread_barrier_t));
 
       pthread_barrier_init((*bank)->barrierRound, NULL, (*bank)->nbPlayer + 1);
+      pthread_barrier_init((*bank)->barrierRoundTmp, NULL, (*bank)->nbPlayer + 1);
+      pthread_barrier_init((*bank)->barrierCardTmp, NULL, (*bank)->nbPlayer + 1);
       pthread_barrier_init((*bank)->barrierCard, NULL, (*bank)->nbPlayer + 1);
 
       if((valRead = readInt(fd)))
@@ -42,6 +45,7 @@ int initGame(const char * path, bank_t ** bank, player_t ** players)
           //START PARSING PLAYERS
           for(i = 0; i < (*bank)->nbPlayer; i++)
           {
+            (*players)[i].hand = NULL;
               (*players)[i].id = i;
               if((valRead = readInt(fd)))
               {
@@ -54,9 +58,13 @@ int initGame(const char * path, bank_t ** bank, player_t ** players)
                   lseek(fd, -1, SEEK_CUR);
                   read(fd, &valRead, sizeof(char));
 
+                  //sets the default strat
+                  (*players)[i].strategy = FLAG_GAMBLING_CONST;
+
                   //if the gambling strat is specified
                   if((char)valRead != ';')
                   {
+
                     switch (valRead)
                     {
                       case '+':
@@ -66,12 +74,7 @@ int initGame(const char * path, bank_t ** bank, player_t ** players)
                       case '-':
                         (*players)[i].strategy = FLAG_GAMBLING_LESS;
                         break;
-
-                      default:
-                        (*players)[i].strategy = FLAG_GAMBLING_CONST;
-                        break;
                     }
-
                     //read the ';'
                     read(fd, &valRead, sizeof(char));
                   }
@@ -86,9 +89,11 @@ int initGame(const char * path, bank_t ** bank, player_t ** players)
                     }
                   }
 
-                  (*players)[i].barrierRound = (*bank)->barrierRound;
+                //  (*players)[i].barrierEndGame = (*bank)->barrierEndGame;
                   (*players)[i].barrierCard =  &((*bank)->barrierCard);
                   (*players)[i].barrierCardTmp = &((*bank)->barrierCardTmp);
+                  (*players)[i].barrierRound = &((*bank)->barrierRound);
+                  (*players)[i].barrierRoundTmp = &((*bank)->barrierRoundTmp);
 
                   (*players)[i].moneyWon = 0;
                 }

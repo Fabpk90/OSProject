@@ -5,9 +5,9 @@
 #include "consts.h"
 
 
-cardHandler_t *  initCardHandler()
+cardHandler_t * initCardHandler()
 {
- cardHandler_t *  cardHandler =  malloc(sizeof(cardHandler_t));
+ cardHandler_t * cardHandler = malloc(sizeof(cardHandler_t));
 
   cardHandler->cards[0] = -1;
   cardHandler->cards[1] = -1;
@@ -106,6 +106,6 @@ uint getValueFromHand(cardHandler_t * cards)
 
     index = index->next;
   }
-  
+
   return val;
 }

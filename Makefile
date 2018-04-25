@@ -1,4 +1,4 @@
-clean: compile
+clean:
 	rm -f player*.dat
 	make run
 

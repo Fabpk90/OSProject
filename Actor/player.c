@@ -8,84 +8,91 @@
 void * playerManager(void * playerStruct)
 {
   player_t *player = (player_t*) playerStruct;
-  char resultLastRound = FLAG_RESULT_NONE;
 
   player->isPlaying = 1;
-  player->isPlayingRound = 1;
+  player->roundResult = FLAG_RESULT_NONE;
 
 //  printf("Player: %d money: %d, placing: %d, strat: %d, stop: %d, obj: %d\n",player->id, player->money, player->placing
 //  , player->strategy, player->stopVal, player->objMoney);
 
   while(player->isPlaying)
   {
-      player->isPlayingRound = 1;
-    while(player->isPlayingRound)
+    player->placing = getBet(player->roundResult, player->placing, player->strategy);
+
+    //waits for his cards
+    pthread_barrier_wait(*(player->barrierRound));
+
+    player->cardsVal = getValueFromHand(player->hand);
+
+    if(player->cardsVal <= player->stopVal)
     {
+      player->wantCard = 1;
+      printf("i want a card \n");
+    }
+    else
+    {
+      player->wantCard = 0;
+    }
 
-      player->placing = getBet(resultLastRound, player->placing, player->strategy);
 
-      //waits for his cards
-      pthread_barrier_wait(player->barrierRound);
+    //waits for the bank to notice his choice
+    pthread_barrier_wait(*(player->barrierRound));
 
-      player->cardsVal = getValueFromHand(player->hand);
+    //waits for the bank to make its choice
+    pthread_barrier_wait(*(player->barrierRound));
 
-      if(player->cardsVal <= player->stopVal)
-      {
-        player->wantCard = 1;
-      }
-      else
-        player->wantCard = 0;
+    printf("want card ? %d\n", player->wantCard);
 
-      //waits for the bank to notice his choice
-      pthread_barrier_wait(player->barrierRound);
+    // loop until threshold reached
+    while(player->wantCard == 1)
+    {
+        printf("Wainting for card \n");
+        //tell the bank he wants some
+        pthread_barrier_wait(*(player->barrierCard));
 
-      //waits for the bank to make its choice
-      pthread_barrier_wait(player->barrierRound);
-
-      // loop until threshold reached
-      while(player->wantCard == 1)
-      {
-          //ask a card
+        //checks if he needs some more
+        player->cardsVal = getValueFromHand(player->hand);
+        if(player->cardsVal >= player->stopVal)
+          player->wantCard = 0;
+        else
           player->wantCard = 1;
 
-          //tell the bank he wants some
-          pthread_barrier_wait(*(player->barrierCard));
-
-          //wait for the bank to give it
-          pthread_barrier_wait(*(player->barrierCard));
-
-          //checks if he needs some more
-          player->cardsVal = getValueFromHand(player->hand);
-          if(player->cardsVal >= player->stopVal)
-            player->wantCard = 0;
-          else
-            player->wantCard = 1;
-
-          //the bank need to update the barrierCard
-          //the tmp barrier is here for that
-
-          pthread_barrier_wait(*(player->barrierCardTmp));
-
-          //the bank has updated the barrierCard
-          pthread_barrier_wait(*(player->barrierCardTmp));
-      }
-
-      player->wantCard = 0; //not really needed, but still
-      player->isPlayingRound = 0;
-      //end of the round
-      pthread_barrier_wait(player->barrierRound);
-
-      writePlayerLog(player);
+        //the bank need to update the barrierCard
+        //the tmp barrier is here for that
+        printf("wainting for cards tmp\n");
+        pthread_barrier_wait(*(player->barrierCardTmp));
+printf("wainting for bank reponse cards tmp\n");
+        //the bank has updated the barrierCard
+        pthread_barrier_wait(*(player->barrierCardTmp));
     }
+
+    //end of the round
+
+    //the bank check for winners
+    pthread_barrier_wait(*(player->barrierRound));
+
+    player->cardsVal = getValueFromHand(player->hand);
+    writePlayerLog(player);
 
     //at the end, when it gets his money or not, test if he quits
     if(player->money >= player->objMoney)
       player->isPlaying = 0;
-  }
+
+    printf("wainting the update 1\n");
+    //the bnk updates the barrierRound
+    pthread_barrier_wait(*(player->barrierRoundTmp));
 
     freeCardHandler(player->hand);
+    printf("wainting the update 2\n");
+    pthread_barrier_wait(*(player->barrierRoundTmp));
+    printf("c'est reparti!\n");
+}
+
+printf("salut!\n");
 
   pthread_exit(0);
+
+  return NULL;
 }
 
 int getBet(char resultLastRound, int placing, gambling_t strategy)
@@ -96,6 +103,12 @@ int getBet(char resultLastRound, int placing, gambling_t strategy)
   if(strategy & FLAG_GAMBLING_MORE)
   {
     if(resultLastRound & FLAG_RESULT_LOSS)
+    {
+      placing <<= 1;
+      if(!placing)
+        return 1;
+      return placing;
+    }
       return placing << 1;
 
     return placing;

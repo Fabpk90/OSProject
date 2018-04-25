@@ -42,7 +42,10 @@ int main(int argc, char **argv)
   free(threads);
   pthread_barrier_destroy(bank->barrierRound);
   pthread_barrier_destroy(bank->barrierCard);
+  pthread_barrier_destroy(bank->barrierRoundTmp);
+  pthread_barrier_destroy(bank->barrierCardTmp);
   free(bank->barrierRound);
+  free(bank->barrierRoundTmp);
   free(bank->barrierCard);
   free(bank->barrierCardTmp);
   free(bank);
