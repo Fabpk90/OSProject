@@ -18,6 +18,10 @@ void * playerManager(void * playerStruct)
   {
     player->placing = getBet(player->roundResult, player->placing, player->placingBase, player->strategy);
 
+    //if he wants to all in, go on
+    if(player->placing >= player->money)
+      player->placing = player->money;
+
     //waits for his cards
     pthread_barrier_wait(*(player->barrierRound));
 
@@ -84,7 +88,7 @@ void * playerManager(void * playerStruct)
   return NULL;
 }
 
-int getBet(char resultLastRound, uint placing, uint placingBase ,gambling_t strategy)
+uint getBet(char resultLastRound, uint placing, uint placingBase ,gambling_t strategy)
 {
   if(resultLastRound & FLAG_RESULT_NONE || strategy & FLAG_GAMBLING_CONST)
     return placingBase;

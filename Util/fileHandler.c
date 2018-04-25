@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include <stdio.h>
+
 #include "fileHandler.h"
 #include "cardHandler.h"
 
@@ -34,17 +36,18 @@ int initGame(const char * path, bank_t ** bank, player_t ** players)
       pthread_barrier_init((*bank)->barrierCardTmp, NULL, (*bank)->nbPlayer + 1);
       pthread_barrier_init((*bank)->barrierCard, NULL, (*bank)->nbPlayer + 1);
 
-      if((valRead = readInt(fd)))
+      if((valRead = readInt(fd)) && valRead < 10)
       {
         (*bank)->nbDecks = valRead;
-        if((valRead = readInt(fd)))
+        if((valRead = readInt(fd)) && valRead < 51)
         {
           (*bank)->nbRounds = valRead;
           //START PARSING PLAYERS
           for(i = 0; i < (*bank)->nbPlayer; i++)
           {
-            (*players)[i].hand = NULL;
+              (*players)[i].hand = NULL;
               (*players)[i].id = i;
+
               if((valRead = readInt(fd)))
               {
                 (*players)[i].money = valRead;
@@ -62,7 +65,6 @@ int initGame(const char * path, bank_t ** bank, player_t ** players)
                   //if the gambling strat is specified
                   if((char)valRead != ';')
                   {
-
                     switch (valRead)
                     {
                       case '+':
@@ -81,13 +83,16 @@ int initGame(const char * path, bank_t ** bank, player_t ** players)
                   {
                     (*players)[i].stopVal = valRead;
 
-                    if((valRead = readInt(fd)))
+                    if((valRead = readInt(fd)) && valRead > (*players)[i].objMoney)
                     {
                       (*players)[i].objMoney = valRead;
                     }
+                    else
+                      return -1;
                   }
+                  else
+                    return -1;
 
-                //  (*players)[i].barrierEndGame = (*bank)->barrierEndGame;
                   (*players)[i].barrierCard =  &((*bank)->barrierCard);
                   (*players)[i].barrierCardTmp = &((*bank)->barrierCardTmp);
                   (*players)[i].barrierRound = &((*bank)->barrierRound);
@@ -95,10 +100,19 @@ int initGame(const char * path, bank_t ** bank, player_t ** players)
 
                   (*players)[i].moneyWon = 0;
                 }
+                else
+                  return -1;
               }
+              else
+                return -1;
           }
+          return 0;//FINISH
         }
+        else
+          return -1;
       }
+      else
+        return -1;
     }
     return ERROR_FILE_READ;
   }

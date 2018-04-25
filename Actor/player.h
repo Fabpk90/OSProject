@@ -43,6 +43,6 @@ typedef struct player
 
 void * playerManager(void *playerStruct);
 
-int getBet(char resultLastRound, uint placing, uint placingBase ,gambling_t strategy);
+uint getBet(char resultLastRound, uint placing, uint placingBase ,gambling_t strategy);
 
 #endif // PLAYER_H

@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 
 #include <pthread.h>
 
@@ -14,21 +15,35 @@ int main(int argc, char **argv)
   bank_t * bank = NULL;
   int i = 0;
 
-  initGame("config.dat", &bank, &players);
+  int load = initGame("config.dat", &bank, &players);
 
-  threads = malloc(sizeof(pthread_t) * bank->nbPlayer);
-
-  for(i = 0; i < bank->nbPlayer; i++)
+  if(load == 0)
   {
-    pthread_create(&threads[i], NULL, playerManager, &players[i]);
+    threads = malloc(sizeof(pthread_t) * bank->nbPlayer);
+
+    for(i = 0; i < bank->nbPlayer; i++)
+    {
+      pthread_create(&threads[i], NULL, playerManager, &players[i]);
+    }
+
+    bankManager(bank, threads, players);
+
+    for(i = 0; i < bank->nbPlayer; i++)
+    {
+        pthread_join(threads[i], NULL);
+    }
   }
-
-
-  bankManager(bank, threads, players);
-
-  for(i = 0; i < bank->nbPlayer; i++)
+  else if(load == ERROR_FILE_OPEN)
   {
-      pthread_join(threads[i], NULL);
+    printf("Erreur d'ouverture du fichier de config\n");
+  }
+  else if(load == ERROR_FILE_READ)
+  {
+    printf("Erreur de lecture du fichier\n");
+  }
+  else
+  {
+    printf("Erreur de parsing du fichier\n");
   }
 
   free(players);
