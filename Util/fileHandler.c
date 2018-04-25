@@ -4,8 +4,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include <stdio.h>
-
 #include "fileHandler.h"
 #include "cardHandler.h"
 

@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include <stdlib.h>
 
 #include <pthread.h>
@@ -10,12 +9,6 @@
 
 int main(int argc, char **argv)
 {
-  /*
-    create all players structs pthread,
-    initiate the bank
-    go into the bank
-    simulation
-  */
   pthread_t * threads = NULL;
   player_t * players = NULL;
   bank_t * bank = NULL;

@@ -1,5 +1,4 @@
 #include <stdlib.h>
-#include <stdio.h>
 
 #include "../Util/deck.h"
 
@@ -47,13 +46,11 @@ void bankManager(bank_t * bank, pthread_t * threads, player_t * players)
     if(getValueFromHand(bank->hand)==21)
     {
       isBlackJacking = 1;
-      printf("Bank do a BlackJack round:%d\n", bank->nbRounds);
     }
     for(i = 0; i < bank->nbPlayer && !isBlackJacking; i++)
     {
       if(getValueFromHand(players[i].hand)==21)
       {
-        printf("Player %d does a BlackJack\n", i);
         isBlackJacking = 1;
       }
     }
