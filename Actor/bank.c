@@ -47,12 +47,20 @@ void bankManager(bank_t * bank, pthread_t * threads, player_t * players)
     //cas où BlackJack
     if(getValueFromHand(bank->hand)==21)
     {
-      printf("Bank do a BlackJack\n");
+      printf("Bank do a BlackJack round:%d\n", bank->nbRounds);
       //blackjack=1; créer une variable bool
+      for(i = 0; i < bank->nbPlayer; i++)
+        players->isPlayingRound=0;
     }
     for(i = 0; i < bank->nbPlayer; i++)
     {
-      if(players[i].wantCard==0 && getValueFromHand(players[i].hand)==21) printf("Player do a BlackJack\n");
+      if(players[i].wantCard==0 && getValueFromHand(players[i].hand)==21)
+      {
+        //gain équivaut au triple de sa mise
+        printf("Player do a BlackJack round:%d\n", bank->nbRounds);
+        for(i = 0; i < bank->nbPlayer; i++)
+          players-> isPlayingRound=0;
+      }
       //if(balckjack==1) Doublemise ou triple;
     }
 
@@ -123,18 +131,8 @@ void bankManager(bank_t * bank, pthread_t * threads, player_t * players)
         pthread_barrier_destroy(bank->barrierCardTmp);
         pthread_barrier_init(bank->barrierCardTmp, NULL, bank->nbPlayer + 1);
       }
-
-      //whoWin(bank,players);
-      /*for(i = 0; i < bank->nbPlayer; i++)
-      {
-        if(getValueFromHand(players[i].hand)==21 || getValueFromHand(bank->hand)==21)
-        {
-          printf("Win");
-          bank->nbRounds=0;
-        }
-      }*/
     }
-
+    whoWin(bank,players);
     if(bank->nbRounds - 1  == 0) // end of the game
       {
         //tell the player to stop playing
@@ -173,22 +171,24 @@ void whoWin(bank_t * bank, player_t * players)
 
   for(i=0;i<bank->nbPlayer;i++)
   {
-    if(getValueFromHand(players[i].hand)==21)
+    if(getValueFromHand(players[i].hand)==getValueFromHand(bank->hand))
     {
-      printf("Player win\n");
-      //gérer mise
+      printf("Player %d égalité avec la banque, round %d avec gain du joueur: %d$\n",i,bank->nbRounds,players[i].placing);
+      //gérer le gain: gain équivalent à la mise
+      for(i=0;i<bank->nbPlayer;i++)
+      {
+        players[i].isPlayingRound=0;
+      }
     }
-  }
-  for(i=0;i<bank->nbPlayer;i++)
-  {
-    players[i].isPlaying=0;
-  }
-
-  if(getValueFromHand(bank->hand)==21)
-  {
-    printf("Bank win\n");
+    else if(getValueFromHand(players[i].hand)>getValueFromHand(bank->hand) || getValueFromHand(bank->hand)>21)
+    {
+      //gérer le gain: gain équivaut au double de sa mise
+      printf("Player %d gagne le round %d avec comme gain: %d$\n",i, bank->nbRounds, players[i].placing);
+      for(i=0;i<bank->nbPlayer;i++)
+      {
+        players[i].isPlayingRound=0;
+      }
+    }
+    else printf("La banque gagne le round %d\n", bank->nbRounds);
   }
 }
-/*
-
-*/
