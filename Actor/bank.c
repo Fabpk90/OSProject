@@ -200,7 +200,6 @@ void whoWin(bank_t * bank, player_t * players, bool firstDraw)
     {
       playerMax = valHand;
       playerMaxIndex = i;
-      //gérer mise
     }
     else if(valHand > 21)
     {
@@ -225,10 +224,16 @@ void whoWin(bank_t * bank, player_t * players, bool firstDraw)
   if(valHand > valHandBank || valHandBank > 21)
   {
     if(firstDraw)
+    {
       players[playerMaxIndex].money += players[playerMaxIndex].placing >> 2;
+      players[playerMaxIndex].moneyWon = players[playerMaxIndex].placing >> 2;
+    }
     else
-      players[playerMaxIndex].money += players[playerMaxIndex].placing;
-
+    {
+        players[playerMaxIndex].money += players[playerMaxIndex].placing;
+        players[playerMaxIndex].moneyWon = players[playerMaxIndex].placing;
+    }
+    
     players[playerMaxIndex].roundResult = FLAG_RESULT_WON;
   }
   else if(valHand == valHandBank)
@@ -247,6 +252,7 @@ void whoWin(bank_t * bank, player_t * players, bool firstDraw)
       if(valHand > valHandBank || valHandBank > 21)
       {
         players[i].money += players[i].placing;
+        players[i].moneyWon = players[i].placing;
         players[i].roundResult = FLAG_RESULT_WON;
       }
       else if(valHand == valHandBank)
