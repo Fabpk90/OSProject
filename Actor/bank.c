@@ -49,6 +49,8 @@ void bankManager(bank_t * bank, pthread_t * threads, player_t * players)
       printf("Bank does a BlackJack\n");
       isBlackJacking = 1;
       //blackjack=1; créer une variable bool
+      for(i = 0; i < bank->nbPlayer; i++)
+        players->isPlayingRound=0;
     }
     for(i = 0; i < bank->nbPlayer && !isBlackJacking; i++)
     {
@@ -274,6 +276,3 @@ void whoWin(bank_t * bank, player_t * players, bool firstDraw)
 
   free(checked);
 }
-/*
-
-*/
