@@ -48,9 +48,6 @@ void bankManager(bank_t * bank, pthread_t * threads, player_t * players)
     {
       isBlackJacking = 1;
       printf("Bank do a BlackJack round:%d\n", bank->nbRounds);
-      //blackjack=1; créer une variable bool
-      for(i = 0; i < bank->nbPlayer; i++)
-        players->isPlayingRound=0;
     }
     for(i = 0; i < bank->nbPlayer && !isBlackJacking; i++)
     {
@@ -152,6 +149,7 @@ void bankManager(bank_t * bank, pthread_t * threads, player_t * players)
     pthread_barrier_destroy(bank->barrierRoundTmp);
     pthread_barrier_init(bank->barrierRoundTmp,NULL, getNbPlayersPlay(bank->nbPlayer, players) + 1);
 
+    freeCardHandler(bank->hand);
 
     bank->nbRounds --;
   }
