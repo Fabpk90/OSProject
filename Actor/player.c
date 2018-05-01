@@ -43,7 +43,7 @@ void * playerManager(void * playerStruct)
     pthread_barrier_wait(*(player->barrierRound));
 
     // loop until threshold reached
-    while(player->wantCard == 1)
+    while(player->wantCard)
     {
 
         //tell the bank he wants some
@@ -82,9 +82,7 @@ void * playerManager(void * playerStruct)
     freeCardHandler(player->hand);
     pthread_barrier_wait(*(player->barrierRoundTmp));
   }
-
-  pthread_exit(0);
-
+  
   return NULL;
 }
 

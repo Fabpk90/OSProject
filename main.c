@@ -35,6 +35,18 @@ int main(int argc, char **argv)
       {
           pthread_join(threads[i], NULL);
       }
+
+      free(players);
+      free(threads);
+      pthread_barrier_destroy(bank->barrierRound);
+      pthread_barrier_destroy(bank->barrierCard);
+      pthread_barrier_destroy(bank->barrierRoundTmp);
+      pthread_barrier_destroy(bank->barrierCardTmp);
+      free(bank->barrierRound);
+      free(bank->barrierRoundTmp);
+      free(bank->barrierCard);
+      free(bank->barrierCardTmp);
+      free(bank);
     }
     else if(load == ERROR_FILE_OPEN)
     {

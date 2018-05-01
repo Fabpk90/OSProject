@@ -83,7 +83,7 @@ int initGame(const char * path, bank_t ** bank, player_t ** players)
                   {
                     (*players)[i].stopVal = valRead;
 
-                    if((valRead = readInt(fd)) && valRead > (*players)[i].objMoney)
+                    if((valRead = readInt(fd)) && valRead > (*players)[i].money)
                     {
                       (*players)[i].objMoney = valRead;
                     }
