@@ -47,6 +47,7 @@ int initGame(const char * path, bank_t ** bank, player_t ** players)
           {
               (*players)[i].hand = NULL;
               (*players)[i].id = i;
+              (*players)[i].isPlaying = 1;
 
               if((valRead = readInt(fd)))
               {

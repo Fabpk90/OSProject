@@ -26,11 +26,15 @@ void bankManager(bank_t * bank, pthread_t * threads, player_t * players)
     //gives cards to all players
     for(i = 0; i < bank->nbPlayer; i++)
     {
-      players[i].hand = initCardHandler();
-      addCard(players[i].hand, getValueFromCardID(drawCard(decks)));
-      addCard(players[i].hand, getValueFromCardID(drawCard(decks)));
+      if(players[i].isPlaying)
+      {
+        players[i].hand = initCardHandler();
+        addCard(players[i].hand, getValueFromCardID(drawCard(decks)));
+        addCard(players[i].hand, getValueFromCardID(drawCard(decks)));
 
-      players[i].bankHand = &bank->hand;
+        players[i].bankHand = &bank->hand;
+      }
+
     }
 
     addCard(bank->hand, getValueFromCardID(drawCard(decks)));

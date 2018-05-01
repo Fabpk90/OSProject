@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "player.h"
 #include "../Util/cardHandler.h"
@@ -75,14 +76,25 @@ void * playerManager(void * playerStruct)
 
     //at the end, when it gets his money or not, test if he quits
     if(player->money >= player->objMoney)
+    {
       player->isPlaying = 0;
+      player->wantCard = 0;
+    }
 
-    //the bnk updates the barrierRound
+    //the bank updates the barrierRound
     pthread_barrier_wait(*(player->barrierRoundTmp));
     freeCardHandler(player->hand);
+    player->hand = NULL;
     pthread_barrier_wait(*(player->barrierRoundTmp));
   }
-  
+
+  if(player->hand != NULL)
+  {
+    printf("paf\n");
+    freeCardHandler(player->hand);
+  }
+
+
   return NULL;
 }
 

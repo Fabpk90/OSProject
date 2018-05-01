@@ -47,14 +47,18 @@ int main(int argc, char **argv)
       free(bank->barrierCard);
       free(bank->barrierCardTmp);
       free(bank);
+
+      return 0;
     }
     else if(load == ERROR_FILE_OPEN)
     {
       printf("Erreur d'ouverture du fichier de config\n");
+      return -1;
     }
     else if(load == ERROR_FILE_READ)
     {
       printf("Erreur de lecture du fichier\n");
+      return -1;
     }
     else
     {
@@ -71,7 +75,8 @@ int main(int argc, char **argv)
       free(bank->barrierCard);
       free(bank->barrierCardTmp);
       free(bank);
+
+      return -1;
     }
   }
-  return 0;
 }
