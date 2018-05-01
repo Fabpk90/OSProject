@@ -87,15 +87,7 @@ void * playerManager(void * playerStruct)
     player->hand = NULL;
     pthread_barrier_wait(*(player->barrierRoundTmp));
   }
-
-  if(player->hand != NULL)
-  {
-    printf("paf\n");
-    freeCardHandler(player->hand);
-  }
-
-
-  return NULL;
+  pthread_exit(0);
 }
 
 uint getBet(char resultLastRound, uint placing, uint placingBase ,gambling_t strategy)

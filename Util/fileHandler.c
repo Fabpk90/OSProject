@@ -19,10 +19,8 @@ int initGame(const char * path, bank_t ** bank, player_t ** players)
   if(fd != -1)
   {
     (*bank) = malloc(sizeof(bank_t));
-    if((valRead = readInt(fd)))
+    if((valRead = readInt(fd)) && valRead < 9)
     {
-      //on limite le nombre de joueurs ?
-      //TODO: insert here the test for max players
       (*bank)->nbPlayer = valRead;
       (*players) = malloc(sizeof(player_t) * valRead);
 
