@@ -23,6 +23,8 @@ void bankManager(bank_t * bank, pthread_t * threads, player_t * players);
 int getNbPlayersPlay(uint nb, player_t * players);
 int getNbPlayerWantCard(uint nb, player_t * players);
 
+bool checkAvaibleCards(deck_t * deck);
+
 void checkForWinners(bank_t * bank, player_t * players, bool firstDraw);
 
 #endif

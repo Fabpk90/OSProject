@@ -33,7 +33,7 @@ int main(int argc, char **argv)
 
       for(i = 0; i < bank->nbPlayer; i++)
       {
-          pthread_join(threads[i], NULL);
+        pthread_join(threads[i], NULL);
       }
 
       free(players);

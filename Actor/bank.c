@@ -53,7 +53,7 @@ void bankManager(bank_t * bank, pthread_t * threads, player_t * players)
     }
     for(i = 0; i < bank->nbPlayer && !isBlackJacking; i++)
     {
-      if(getValueFromHand(players[i].hand)==21)
+      if( players[i].isPlaying && getValueFromHand(players[i].hand)==21)
       {
         isBlackJacking = 1;
       }
@@ -84,17 +84,14 @@ void bankManager(bank_t * bank, pthread_t * threads, player_t * players)
       {
         if(players[i].wantCard==1)
         {
-          if(getDrawPileSize(decks)!=0)
-          {
-            addCard(players[i].hand, getValueFromCardID(drawCard(decks)));
-          }
-          else
+          if(!checkAvaibleCards(decks))
           {
             removeDeck(decks);
             //init and shuffling decks
             decks = initDeck(P52, bank->nbDecks);
             shuffleDeck(decks);
           }
+          addCard(players[i].hand, getValueFromCardID(drawCard(decks)));
 
         }
       }
@@ -119,8 +116,24 @@ void bankManager(bank_t * bank, pthread_t * threads, player_t * players)
         pthread_barrier_destroy(bank->barrierCardTmp);
         pthread_barrier_init(bank->barrierCardTmp, NULL, playerWantCard + 1);
       }
-      else //nobody wants cards, so we init nothing
+      else
+      {
+        while(getValueFromHand(bank->hand) < 17)
+        {
+          if(!checkAvaibleCards(decks))
+          {
+            removeDeck(decks);
+            //init and shuffling decks
+            decks = initDeck(P52, bank->nbDecks);
+            shuffleDeck(decks);
+          }
+          addCard(bank->hand, getValueFromCardID(drawCard(decks)));
+
+        }
+
+        //nobody wants cards, so we init nothing
         pthread_barrier_wait(bank->barrierCardTmp);
+      }
     }
 
     checkForWinners(bank, players, 0);
@@ -151,6 +164,14 @@ void bankManager(bank_t * bank, pthread_t * threads, player_t * players)
   }
 
   removeDeck(decks);
+}
+
+bool checkAvaibleCards(deck_t * deck)
+{
+  if(getDrawPileSize(deck)!=0)
+    return 1;
+
+  return 0;
 }
 
 int getNbPlayersPlay(uint nb, player_t * players)
@@ -187,28 +208,32 @@ void checkForWinners(bank_t * bank, player_t * players, bool firstDraw)
   //and handles hands > 21
   for(i=0;i<bank->nbPlayer;i++)
   {
-    valHand = getValueFromHand(players[i].hand);
-    if(valHand > playerMax && valHand <= 21)
+    if(players[i].isPlaying)
     {
-      playerMax = valHand;
-      playerMaxIndex = i;
-    }
-    else if(valHand > 21)
-    {
-      if(players[i].money - players[i].placing >= 0)
+      valHand = getValueFromHand(players[i].hand);
+      if(valHand > playerMax && valHand <= 21)
       {
-        players[i].money -= players[i].placing;
-        players[i].roundResult = FLAG_RESULT_LOSS;
+        playerMax = valHand;
+        playerMaxIndex = i;
       }
-      else
+      else if(valHand > 21)
       {
-        players[i].money = 0;
-        players[i].isPlaying = 0;
-      }
+        if(players[i].money - players[i].placing >= 0)
+        {
+          players[i].money -= players[i].placing;
+          players[i].roundResult = FLAG_RESULT_LOSS;
+        }
+        else
+        {
+          players[i].money = 0;
+          players[i].isPlaying = 0;
+        }
 
-      players[i].roundResult = FLAG_RESULT_LOSS;
-      checked[i] = 1;
+        players[i].roundResult = FLAG_RESULT_LOSS;
+        checked[i] = 1;
+      }
     }
+
   }
 
   valHandBank = getValueFromHand(bank->hand);
@@ -238,7 +263,7 @@ void checkForWinners(bank_t * bank, player_t * players, bool firstDraw)
   for(i=0;i<bank->nbPlayer;i++)
   {
     //if not checked yet
-    if(!(checked[i] & 1))
+    if(!(checked[i] & 1) && players[i].isPlaying)
     {
       valHand = getValueFromHand(players[i].hand);
       if(valHand > valHandBank || valHandBank > 21)

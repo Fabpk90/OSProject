@@ -84,10 +84,10 @@ void * playerManager(void * playerStruct)
     //the bank updates the barrierRound
     pthread_barrier_wait(*(player->barrierRoundTmp));
     freeCardHandler(player->hand);
-    player->hand = NULL;
     pthread_barrier_wait(*(player->barrierRoundTmp));
   }
-  pthread_exit(0);
+
+  return NULL;
 }
 
 uint getBet(char resultLastRound, uint placing, uint placingBase ,gambling_t strategy)
